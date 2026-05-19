@@ -120,10 +120,15 @@ Each top-level commit is one checkbox; sub-tasks track per-file work.
 - [x] Update 1 AIU sidecar
 - [x] Commit 4.5 to git (`cb27b2c`)
 
-### Commit 4.6 (OPTIONAL — discuss first) — Responsive container
+### Commit 4.6 (DEFERRED) — Responsive container
 - [ ] Wrap `portal2/#container` so it scales below 1080px width
 - [ ] Verify desktop aesthetic preserved
 - [ ] Update sidecars
+
+**Status:** Deferred 2026-05-19 after Phase 6 (desktop app) pivot. All Phase 6 use cases are fullscreen (Tauri window, Windows screensaver, WallpaperEngine) so responsive web viewing isn't load-bearing. If we ever care: recommended approach is `transform: scale()` with viewport-width media queries — ~10 lines of CSS, preserves the visual aesthetic exactly.
+
+### Phase 4 polish (DEFERRED) — portal/ layout nit
+- [ ] portal/style.css: `#picture` extends 1em below the `#lyrics` bottom border because `#credits.height + #picture.height = 53em` vs `#lyrics.height = 52em`. Original author's miss. Fix is one-line: `#picture { height: 24em }` (or `top: 29em`, or pin to right edge with `right: 1em`).
 
 ---
 
