@@ -42,11 +42,11 @@ Each top-level commit is one checkbox; sub-tasks track per-file work.
 - [ ] Commit 2.2 to git (pending)
 
 ### Commit 2.3 — Drop `cake.smash()` tamper trap
-- [ ] Remove the `if (cake.blinkerTime != 300)` branch in `blink()` — `portal/cake.js`
-- [ ] Same in `portal2/cake.js`
-- [ ] Same in `portal2/portal1style/cake.js`
-- [ ] Update 3 AIU sidecars
-- [ ] Commit 2.3 to git
+- [x] Remove the `if (cake.blinkerTime != 300)` branch in `blink()` — `portal/cake.js`
+- [x] Same in `portal2/cake.js`
+- [x] Same in `portal2/portal1style/cake.js`
+- [x] Update 3 AIU sidecars (sha1 only — smash wasn't documented in gotchas)
+- [ ] Commit 2.3 to git (pending)
 
 ### Commit 2.4 — Fix `window.onLoad` capitalization
 - [ ] `portal/cake.js`: replace `window.onLoad = setTimeout("cake.init()", 2)` with proper load handling

@@ -108,11 +108,6 @@ var cake = {
             newChar = '_';
         blinker.innerHTML = newChar;
 
-        if (cake.blinkerTime != 300)
-        {
-            alert(cake.blinkerTime);
-            cake.smash();
-        }
         setTimeout(function() {
             cake.blink(blinker)
         }, cake.blinkerTime);

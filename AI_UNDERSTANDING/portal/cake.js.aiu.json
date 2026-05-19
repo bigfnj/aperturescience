@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal/cake.js",
-  "sha1": "e11dd15da12689ed4a7c651d9cbf8bbfb2cf0242",
+  "sha1": "b3d929f2ca26a03adb087c0a53ee988e11abc025",
   "purpose": "Runtime controller for the Portal 1 credits animation. It waits for DOMContentLoaded, attaches splash dismissal handlers, then on user click/Space starts audio, draws text borders, types lyric and credit data character by character, blinks cursors, and swaps ASCII art according to lyric metadata.",
   "exports": [
     "cake"
