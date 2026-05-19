@@ -353,8 +353,9 @@ User-explicit ask: "change the color of the text, have it multi-colored or have 
 
 - [ ] **Text color modes** (above) — fits here
 - [ ] **Enrichment Center Credits** (full spec below) — user-editable text replaces the names list in the credits column
+- [ ] **Override Track** (full spec below) — user-supplied audio file (.wav/.mp3/.ogg) replaces the bundled song; credits speed auto-adapts to new duration. Option A: lyrics keep original Portal timings (decoupled).
 - [ ] **Hotkeys** (F11 fullscreen, M mute, R restart variant, N next variant in random mode, Esc returns to launcher) — small handler in cake.js + launcher
-- [ ] **Local storage of last-used variant + last-used color mode + custom-credits state** — launcher reads/writes localStorage so the next launch preselects
+- [ ] **Local storage of last-used variant + last-used color mode + custom-credits state + custom-audio state** — launcher reads/writes localStorage / IndexedDB so the next launch preselects
 - [ ] **Skip-to-end / replay button** — small overlay button visible after splash, restarts cycle or skips to credits end
 - [ ] **Stats overlay** — small bottom-right text showing variant + elapsed time, toggleable with `S` key
 - [ ] **Crossfade between variants in random mode** — JS opacity transition in launcher, ~1-2 s fade between consecutive cycles (currently hard cut via location.assign)
@@ -400,6 +401,57 @@ User-explicit ask 2026-05-19: let the user supply their own text (typed, pasted,
 
 **Estimated effort:** ~1.5–2 hours. Sits in Tier 1.
 
+#### Override Track — full spec
+
+User-explicit ask 2026-05-19: let the user supply their own audio file (`.wav` / `.mp3` / `.ogg`) which replaces the bundled Portal song. Credits scroll speed auto-adapts to the new song length. Lyrics keep their original Portal timings (decoupled — Option A from design discussion: aesthetic typing animation continues regardless of the new song's content).
+
+**Launcher UI section** (labeled `OVERRIDE TRACK`):
+- `[ LOAD AUDIO FILE ]` button — native file picker with `accept="audio/*,.wav,.mp3,.ogg"`
+- `[ RESET TO DEFAULT ]` button — clears the override; original Portal audio + original lyric timings resume
+- Status line: `Audio: my-song.mp3 (3:42)` — shows filename and duration once `loadedmetadata` fires
+- **Disabled in WallpaperEngine mode** — show greyed-out section with note: "Custom audio not supported in WallpaperEngine. Use the Tauri app or browser."
+
+**Storage:**
+- **Browser:** the audio Blob goes into IndexedDB under `aperture.customAudio` (one record holding `{ blob, filename, durationSec }`). IndexedDB handles arbitrarily large files (~50% of free disk space); localStorage's 5 MB cap can't hold meaningful audio after base64 encoding.
+- **Tauri:** stash the file path in `tauri::api::path::app_data_dir()` and re-read on each launch. More robust than IndexedDB across browser-cache clears.
+- **WallpaperEngine:** N/A — feature is hidden in WE.
+
+**Variant cake.js wiring:**
+1. In DOMContentLoaded handler, before `initMusicPlayer`, check IndexedDB / Tauri config for an override blob.
+2. If present:
+   - Use `URL.createObjectURL(blob)` to create a blob URL
+   - In `initMusicPlayer`, set `cake.player.src = blobUrl` instead of the bundled file
+   - Listen for `loadedmetadata` on the audio element; once fired, set `cake.creditsMaxTime = cake.player.duration`
+   - Defer `processCreditLines` until after `creditsMaxTime` is set (the existing math then adapts automatically)
+3. If absent: zero behavioral change, original bundled audio plays.
+
+**portal/ + portal2/portal1style/ retrofit:**
+- These two variants currently use `setTimeout(function() { cake.player.play(); }, 6.87 * 1000)` to delay playback. They don't have the `userReady` / `audioReady` / `tryStart` pattern that portal2/ uses.
+- For Override Track to work cleanly, both need a small retrofit:
+  - Replace the fixed-delay setTimeout with an `audio.addEventListener('canplaythrough', ...)` handler
+  - Gate playback on splash dismiss + canplaythrough (similar to portal2/'s existing pattern, simplified)
+- This is ~30 min on top of the Override Track work proper.
+
+**Persistence flow:**
+1. User clicks `LOAD AUDIO FILE` → picker → FileReader → IndexedDB put
+2. Page reloads or autoloop cycle → variant page reads IndexedDB on init
+3. `URL.createObjectURL` creates a fresh blob URL each load (don't try to persist the URL itself)
+4. `RESET TO DEFAULT` deletes the IndexedDB record
+
+**Files touched:**
+- `launcher/index.html` (UI section), `launcher/launcher.css` (button styling), `launcher/launcher.js` (file picker, IndexedDB helper, status display, WE-mode detection)
+- `portal/cake.js`, `portal2/cake.js`, `portal2/portal1style/cake.js` (DOMContentLoaded + initMusicPlayer override path)
+- portal/ + portal2/portal1style/ retrofit to canplaythrough-style audio init (separate concern but bundled)
+- 3 cake.js AIU sidecars + launcher sidecars
+
+**Validation / edge cases:**
+- File too large (e.g. 100 MB FLAC misnamed .mp3): IndexedDB handles it, but page load is slow. Show "Loading audio…" status during the put.
+- Corrupted audio: `loadedmetadata` never fires. Show error after 10s timeout: "Audio could not be loaded. Reset to default."
+- Filename includes non-ASCII: handled fine; IndexedDB stores strings as UTF-16.
+- Browser autoplay policy: user-supplied audio is still subject to it. The existing splash gesture covers the first load; subsequent autoloop cycles in same-origin should pass too.
+
+**Estimated effort:** ~3 hours base + ~30 min for portal/portal1style retrofit = **~3.5 hours**. Sits in Tier 1 (heaviest item in the tier alongside Enrichment Center Credits).
+
 ### Tier 2 — medium (each 1-3 hr)
 
 - [ ] ~~Speed control~~ — **dropped 2026-05-19**: music is the master clock for the typing, you can't dilate the text without re-recording the song
@@ -421,7 +473,7 @@ User-explicit ask 2026-05-19: let the user supply their own text (typed, pasted,
 
 Original Phase 6 estimate (4 commits + close-out): **~half day**.
 
-If we execute all Tier 1 (now 7 items including Enrichment Center Credits): **+~5 hours**. One long session or two short ones.
+If we execute all Tier 1 (now 8 items including Enrichment Center Credits and Override Track): **+~8 hours**. Two short sessions or one long one.
 
 If we add Tier 2 (4 items after speed-control drop): **another 6-10 hours** spread across a couple sessions.
 
