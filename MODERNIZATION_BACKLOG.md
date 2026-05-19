@@ -92,33 +92,33 @@ Each top-level commit is one checkbox; sub-tasks track per-file work.
 
 ## Phase 4 — Tier 3 housekeeping
 
-### Commit 4.1 — HTML5 DOCTYPE for `portal/` and `portal2/portal1style/`
-- [ ] `portal/index.html`: XHTML 1.0 Strict → `<!DOCTYPE html>`, drop xmlns, drop self-closing slashes on void elements
-- [ ] `portal2/portal1style/index.html`: same migration
-- [ ] Update 2 AIU sidecars
-- [ ] Commit 4.1 to git
+### Commit 4.1 — HTML5 DOCTYPE for `portal/` and `portal2/portal1style/` + defer scripts
+- [x] `portal/index.html`: XHTML 1.0 Strict → `<!DOCTYPE html>`, drop xmlns, drop self-closing slashes on void elements
+- [x] `portal2/portal1style/index.html`: same migration
+- [x] Added `defer` to script tags across all three variants (rolled in 4.2 here)
+- [x] Update 3 AIU sidecars
+- [x] Commit 4.1 to git (`f0f11fd`)
 
-### Commit 4.2 — `defer` on script tags (no-op if 3.1 used `type="module"`)
-- [ ] Add `defer` to script tags if not already module-loaded
-- [ ] Update sidecars if changed
-- [ ] Commit 4.2 to git (or skip if redundant)
+### Commit 4.2 — `defer` on script tags
+- [x] Rolled into Commit 4.1 — all three variants' script tags now use `defer`
 
 ### Commit 4.3 — Strip vendor prefixes from `portal2/style.css`
-- [ ] Drop `-webkit-` / `-moz-` / `-o-` / `-ms-` for keyframes, gradients, transform, user-select, animation, background-size
-- [ ] Drop `progid:DXImageTransform.Microsoft.gradient` IE6-9 filter
-- [ ] Check `portal2/portal1style/style.css` for same — strip if present
-- [ ] Update 1-2 AIU sidecars
-- [ ] Commit 4.3 to git
+- [x] Dropped `-webkit-` / `-moz-` / `-o-` / `-ms-` for keyframes, gradients, transform, user-select, animation, background-size
+- [x] Dropped `progid:DXImageTransform.Microsoft.gradient` IE6-9 filter
+- [x] `portal2/portal1style/style.css` had no prefixes to strip — already clean
+- [x] File shrunk 212 → 177 lines
+- [x] Update 1 AIU sidecar
+- [x] Commit 4.3 to git (`5af46ec`)
 
 ### Commit 4.4 — `viewbox` → `viewBox` in `portal2/index.html`
-- [ ] One-character fix on the SVG attribute
-- [ ] Update 1 AIU sidecar (the existing gotcha can be removed)
-- [ ] Commit 4.4 to git
+- [x] One-character fix on the SVG attribute
+- [x] Update 1 AIU sidecar (removed the obsolete gotcha)
+- [x] Commit 4.4 to git (`922a442`)
 
 ### Commit 4.5 — `prefers-reduced-motion` block
-- [ ] Add `@media (prefers-reduced-motion: reduce)` to `portal2/style.css` pausing `dots_down`, `dots_up`, `buffer`
-- [ ] Update 1 AIU sidecar
-- [ ] Commit 4.5 to git
+- [x] Added `@media (prefers-reduced-motion: reduce)` to `portal2/style.css` disabling `dots_down`, `dots_up`, `buffer` animations
+- [x] Update 1 AIU sidecar
+- [x] Commit 4.5 to git (`cb27b2c`)
 
 ### Commit 4.6 (OPTIONAL — discuss first) — Responsive container
 - [ ] Wrap `portal2/#container` so it scales below 1080px width
