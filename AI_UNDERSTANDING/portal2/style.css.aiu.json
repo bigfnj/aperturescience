@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal2/style.css",
-  "sha1": "f2ed80f1c0fa714f7ecae544d4332d1eca2c5c86",
+  "sha1": "d44d1417fb50f0b93aaaf213fbf6ad2d991e0155",
   "purpose": "Portal 2 visual theme for the \"Want You Gone\" page. It creates the brown radial background, fixed 1080x600 credits panel, animated scanner buffer, dot animations, and Aperture UI widgets.",
   "exports": [
     "@keyframes buffer",
@@ -34,7 +34,8 @@
   ],
   "invariants": [
     "The #container size and child positioning are fixed to the Portal 2 composition declared in portal2/index.html.",
-    "The #buffer overlay must keep pointer-events disabled so it never blocks the volume input."
+    "The #buffer overlay must keep pointer-events disabled so it never blocks the volume input.",
+    "@media (prefers-reduced-motion: reduce) disables the dot-scroll and buffer-scroll animations; the page still renders, just without continuous motion."
   ],
   "gotchas": [
     "The page is designed for a 1080x600 fixed panel, not responsive browser widths."

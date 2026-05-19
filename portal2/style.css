@@ -175,3 +175,11 @@ body {
 
     animation: buffer 2s linear 1s infinite normal;
 }
+
+@media (prefers-reduced-motion: reduce) {
+    #dotsleft,
+    #dotsright,
+    #buffer {
+        animation: none;
+    }
+}
