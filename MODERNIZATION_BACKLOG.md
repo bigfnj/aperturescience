@@ -127,8 +127,8 @@ Each top-level commit is one checkbox; sub-tasks track per-file work.
 
 **Status:** Deferred 2026-05-19 after Phase 6 (desktop app) pivot. All Phase 6 use cases are fullscreen (Tauri window, Windows screensaver, WallpaperEngine) so responsive web viewing isn't load-bearing. If we ever care: recommended approach is `transform: scale()` with viewport-width media queries — ~10 lines of CSS, preserves the visual aesthetic exactly.
 
-### Phase 4 polish (DEFERRED) — portal/ layout nit
-- [ ] portal/style.css: `#picture` extends 1em below the `#lyrics` bottom border because `#credits.height + #picture.height = 53em` vs `#lyrics.height = 52em`. Original author's miss. Fix is one-line: `#picture { height: 24em }` (or `top: 29em`, or pin to right edge with `right: 1em`).
+### Phase 4 polish — portal/ layout (DONE)
+- [x] portal/style.css: re-aligned `#picture` from the 3em-right-of-credits staircase to a clean stack under credits (`left: 33em`, was 36em), shrank height from 25em to 24em so bottom matches lyrics bottom exactly, reduced line-height from 1.3em to 1.2em so 20-line ASCII frames fit cleanly, and added `#picturetext` flexbox rule to center the art on both axes. Verified via Playwright screenshot.
 
 ---
 
