@@ -352,15 +352,57 @@ User-explicit ask: "change the color of the text, have it multi-colored or have 
 ### Tier 1 — small, batchable (each ~30-60 min)
 
 - [ ] **Text color modes** (above) — fits here
+- [ ] **Enrichment Center Credits** (full spec below) — user-editable text replaces the names list in the credits column
 - [ ] **Hotkeys** (F11 fullscreen, M mute, R restart variant, N next variant in random mode, Esc returns to launcher) — small handler in cake.js + launcher
-- [ ] **Local storage of last-used variant + last-used color mode** — launcher reads/writes localStorage so the next launch preselects
+- [ ] **Local storage of last-used variant + last-used color mode + custom-credits state** — launcher reads/writes localStorage so the next launch preselects
 - [ ] **Skip-to-end / replay button** — small overlay button visible after splash, restarts cycle or skips to credits end
 - [ ] **Stats overlay** — small bottom-right text showing variant + elapsed time, toggleable with `S` key
 - [ ] **Crossfade between variants in random mode** — JS opacity transition in launcher, ~1-2 s fade between consecutive cycles (currently hard cut via location.assign)
 
+#### Enrichment Center Credits — full spec
+
+User-explicit ask 2026-05-19: let the user supply their own text (typed, pasted, or loaded from a .txt file) which replaces the names scroll in the right-hand credits column.
+
+**Launcher UI section** (labeled `ENRICHMENT CENTER CREDITS`):
+- `[ LOAD .TXT FILE ]` button — native file picker, reads `.txt` via `FileReader`, drops contents into the textarea (Option B from design discussion: file picker + textarea, not file picker alone)
+- `[ CLEAR ]` button — empties textarea and removes the localStorage entry; original Portal credits resume
+- Multi-line textarea, autosaves to `localStorage.aperture.customCredits` on every keystroke
+- Character counter below: `X / 20,000`
+- Soft cap via `<textarea maxlength="20000">` — browser silently truncates pasted overflow; when truncation happens show inline notice: `"Pasted text trimmed to 20,000 characters."`
+- **Under 2,500 chars:** radio buttons appear — `(o) LOOP CONTINUOUSLY  ( ) STOP AFTER ONCE`, default **LOOP**, stored as `localStorage.aperture.creditsMode`
+- **2,500+ chars:** radio buttons hidden; falls through to existing STRETCH math automatically (no warning, no picker — "go lightspeed" per user direction)
+- **Empty / blank:** zero behavioral change; original Portal credits, current STRETCH math, no UX
+
+**Variant cake.js override** (applied to portal/, portal2/, portal2/portal1style/ identically):
+- In DOMContentLoaded handler, read `localStorage.aperture.customCredits` and `localStorage.aperture.creditsMode` (default `loop`)
+- If `customCredits.trim().length > 0`:
+  - Replace `window.credits = customCredits.split('\n')` before `processCreditLines` runs
+  - If `customCredits.length < 2500`:
+    - Override `creditsDelay` with the per-variant fixed value (not STRETCH math)
+    - If mode is `loop`: after the last credit line's `setTimeout` fires, clear `cake.creditsdiv`, reset `cake.lastCreditsIndex = 0`, re-call `cake.initCredits()` and `cake.processCreditLines()` to restart from the top
+    - If mode is `stop`: type once at fixed speed, end in screenshot-2-equivalent idle state
+  - If `customCredits.length >= 2500`: keep existing STRETCH math (`creditsDelay = creditsMaxTime * 1000 / totalchars`) — adapts speed to fit the song length, can go lightspeed for huge inputs
+
+**Per-variant natural-speed constants (baked-in):**
+- `portal/`: `cake.naturalCreditsDelay = 63` ms/char (2,754 chars ÷ 173 s = ~16 char/s, matches original Still Alive pacing)
+- `portal2/` and `portal2/portal1style/`: `cake.naturalCreditsDelay = 33` ms/char (4,378 chars ÷ 144 s = ~30 char/s, matches original Want You Gone pacing)
+
+**Persistence flow:**
+1. User edits textarea or loads .txt → autosave to `localStorage.aperture.customCredits`
+2. User toggles LOOP/STOP radio → save to `localStorage.aperture.creditsMode`
+3. User clicks a variant button → variant page loads, reads localStorage, applies override
+4. Autoloop cycles → localStorage survives, override persists
+
+**Files touched:**
+- `launcher/index.html` (UI section), `launcher/launcher.css` (textarea + radio styling), `launcher/launcher.js` (file picker, autosave, character counter, truncation notice)
+- `portal/cake.js`, `portal2/cake.js`, `portal2/portal1style/cake.js` (DOMContentLoaded override + loop-restart in processCreditLines)
+- 3 cake.js AIU sidecars + new launcher sidecars
+
+**Estimated effort:** ~1.5–2 hours. Sits in Tier 1.
+
 ### Tier 2 — medium (each 1-3 hr)
 
-- [ ] **Speed control** — typing speed multiplier (0.5×, 1×, 1.5×, 2×, 3×) applied to all setTimeout timings. Tricky because the credit-pacing math derives delays from total character count; multiplier needs to flow through `cake.delayMultiplier` and the runtime `cake.creditsDelay` computation
+- [ ] ~~Speed control~~ — **dropped 2026-05-19**: music is the master clock for the typing, you can't dilate the text without re-recording the song
 - [ ] **Visual theme selector** — beyond text color: alternate border styles (double pipes, em-dashes, solid lines), alternate background tints, alternate font (preserve monospace constraint)
 - [ ] **CLI args for Tauri** (`--variant portal2`, `--fullscreen`, `--color cycle`) — passes through to launcher via env or query param
 - [ ] **Window controls overlay (Tauri)** — custom title bar, frameless window with draggable region, close/minimize/maximize buttons
@@ -379,9 +421,9 @@ User-explicit ask: "change the color of the text, have it multi-colored or have 
 
 Original Phase 6 estimate (4 commits + close-out): **~half day**.
 
-If we execute all Tier 1 plus the color modes: **+~3 hours**. Still doable in a session.
+If we execute all Tier 1 (now 7 items including Enrichment Center Credits): **+~5 hours**. One long session or two short ones.
 
-If we add Tier 2: **another 8-12 hours** spread across a couple sessions.
+If we add Tier 2 (4 items after speed-control drop): **another 6-10 hours** spread across a couple sessions.
 
 If we add Tier 3 in full: **multiple days**.
 
