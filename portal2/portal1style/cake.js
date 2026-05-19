@@ -1,6 +1,9 @@
 // Creative Commons License
 // Portal End Credits Web by TylaKitty/xBytez/Valve is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 // Based on a work at http://xbytez.eu/.
+(function() {
+'use strict';
+
 var cake = {
     delayMultiplier:1000,
 
@@ -48,12 +51,12 @@ var cake = {
     drawLyricsBorder: function()
     {
         var verttext='';
-        for (x=0; x<30; x++)
+        for (var x=0; x<30; x++)
         {
             verttext+='|<br />';
         }
         var horiztext='';
-        for (x=0; x<47; x++)
+        for (var x=0; x<47; x++)
         {
             horiztext+='-';
         }
@@ -73,12 +76,12 @@ var cake = {
     drawCreditsBorder: function()
     {
         var verttext='';
-        for (x=0; x<16; x++)
+        for (var x=0; x<16; x++)
         {
             verttext+='|<br />';
         }
         var horiztext='';
-        for (x=0; x<47; x++)
+        for (var x=0; x<47; x++)
         {
             horiztext+='-';
         }
@@ -114,7 +117,7 @@ var cake = {
 
     blink: function(blinker)
     {
-        nextChar=blinker.innerHTML;
+        var nextChar=blinker.innerHTML;
         var newChar='_';
         if (nextChar=='_')
             newChar='&nbsp;';
@@ -197,6 +200,7 @@ var cake = {
             {
                 letterdelay=delay/(text.length+1);
             }
+            var timeout;
             for (var x=0; x<text.length; x++)
             {
                 timeout=setTimeout(cake.processLetter, letterdelay*x, 'lyrics', index, text.charAt(x));
@@ -210,6 +214,7 @@ var cake = {
     processLyricLines: function()
     {
         var delay=0;
+        var timeout;
         for (var index=0; index<lyrics.length; index++)
         {
             timeout=setTimeout(cake.processLyricLine, delay, index);
@@ -291,7 +296,9 @@ var cake = {
         }
 
     }
-}
+};
+
+window.cake = cake;
 
 document.addEventListener('DOMContentLoaded', function() {
     var splash = document.getElementById('splash');
@@ -308,3 +315,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+})();

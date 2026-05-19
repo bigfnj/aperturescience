@@ -1,4 +1,7 @@
 /* Creative Commons License Portal End Credits Web by xBytez/TylaKitty/Valve is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License. Based on a work at https://xbytez.eu/. */
+(function() {
+'use strict';
+
 var cake = {
     delayMultiplier: 1000,
     creditsStartTime: 9,
@@ -30,11 +33,11 @@ var cake = {
     },
     drawLyricsBorder: function() {
         var verttext = '';
-        for (x = 0; x < 30; x++) {
+        for (var x = 0; x < 30; x++) {
             verttext += '|<br />';
         }
         var horiztext = '';
-        for (x = 0; x < 47; x++) {
+        for (var x = 0; x < 47; x++) {
             horiztext += '-';
         }
         var left = document.getElementById('lyricsleft');
@@ -48,11 +51,11 @@ var cake = {
     },
     drawCreditsBorder: function() {
         var verttext = '';
-        for (x = 0; x < 16; x++) {
+        for (var x = 0; x < 16; x++) {
             verttext += '|<br />';
         }
         var horiztext = '';
-        for (x = 0; x < 47; x++) {
+        for (var x = 0; x < 47; x++) {
             horiztext += '-';
         }
         var left = document.getElementById('creditsleft');
@@ -79,7 +82,7 @@ var cake = {
         }
     },
     blink: function(blinker) {
-        nextChar = blinker.innerHTML;
+        var nextChar = blinker.innerHTML;
         var newChar = '_';
         if (nextChar == '_')
             newChar = '&nbsp;';
@@ -142,6 +145,7 @@ var cake = {
             if (text.length > 0) {
                 letterdelay = delay / (text.length + 1);
             }
+            var timeout;
             for (var x = 0; x < text.length; x++) {
                 timeout = setTimeout(cake.processLetter, letterdelay * x, 'lyrics', index, text.charAt(x));
             }
@@ -152,6 +156,7 @@ var cake = {
     },
     processLyricLines: function() {
         var delay = 0;
+        var timeout;
         for (var index = 0; index < lyrics.length; index++) {
             timeout = setTimeout(cake.processLyricLine, delay, index);
             delay += lyrics[index]['delay'] * cake.delayMultiplier;
@@ -226,7 +231,10 @@ var cake = {
             delay += credits[index].length * cake.creditsDelay;
         }
     }
-}
+};
+
+window.cake = cake;
+
 document.addEventListener('DOMContentLoaded', function() {
     var splash = document.getElementById('splash');
     function startCake() {
@@ -242,3 +250,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+})();

@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal/cake.js",
-  "sha1": "b3d929f2ca26a03adb087c0a53ee988e11abc025",
+  "sha1": "f5e079bbaaee43ff3a4d4a13204e3a8cdde2e8fc",
   "purpose": "Runtime controller for the Portal 1 credits animation. It waits for DOMContentLoaded, attaches splash dismissal handlers, then on user click/Space starts audio, draws text borders, types lyric and credit data character by character, blinks cursors, and swaps ASCII art according to lyric metadata.",
   "exports": [
     "cake"
@@ -35,7 +35,7 @@
     "cake.init runs only after the user dismisses the #splash overlay (click or Space) on DOMContentLoaded; this satisfies modern autoplay policy and keeps lyric typing in sync with audio."
   ],
   "gotchas": [
-    "The file uses implicit globals such as x, timeout, and nextChar; enabling strict mode without cleanup would break it.",
+    "The file body is wrapped in an IIFE with 'use strict'; cake is exposed to the page via window.cake = cake so HTML id 'splash' handlers and any inline attribute handlers can still reach it.",
     "setTimeout uses the 3-argument form (callback, delay, ...args) to capture loop-iteration values (text.charAt(x), index) at schedule time so the var-scoped loop variables don't produce the closure trap.",
     "initMusicPlayer relies on the local Still Alive.ogg filename next to index.html.",
     "The DOMContentLoaded handler assumes index.html provides an element with id 'splash'; without it splash.addEventListener throws and the credits never start."

@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal2/cake.js",
-  "sha1": "8cffbcb731054c2da0c922750c0697568ba91ae2",
+  "sha1": "34e0c27e7034428ae9489a5ee8fe15ad4cf447bb",
   "purpose": "Runtime controller for the modern Portal 2 credits animation. It waits for DOMContentLoaded, kicks off audio preloading, attaches splash dismissal handlers, and runs cake.init only when both the user has dismissed the splash and the audio canplaythrough event has fired. It types lyrics and credits, handles cursor blinking, computes credit pacing, and exposes volume control.",
   "exports": [
     "cake"
@@ -38,7 +38,7 @@
   ],
   "gotchas": [
     "If canplaythrough never fires, cake.audioReady stays false and the splash click does not start playback. The IE fallback branch sets audioReady = true so the (broken) IE message at least becomes visible after splash dismiss.",
-    "The file uses implicit globals such as timeout and nextChar; strict mode would require cleanup.",
+    "The file body is wrapped in an IIFE with 'use strict'; cake is exposed to the page via window.cake = cake so the inline #volume oninput/onchange handlers in portal2/index.html still reach cake.setVolume.",
     "setTimeout uses the 3-argument form (callback, delay, ...args) to capture loop-iteration values at schedule time so var-scoped loop variables do not produce the closure trap.",
     "The IE fallback only reports a message for IE versions below 9; it does not provide non-audio playback.",
     "The DOMContentLoaded handler assumes index.html provides an element with id 'splash'; without it splash.addEventListener throws and the credits never start."

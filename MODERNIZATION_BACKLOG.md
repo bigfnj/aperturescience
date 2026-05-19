@@ -49,24 +49,20 @@ Each top-level commit is one checkbox; sub-tasks track per-file work.
 - [ ] Commit 2.3 to git (pending)
 
 ### Commit 2.4 — Fix `window.onLoad` capitalization
-- [ ] `portal/cake.js`: replace `window.onLoad = setTimeout("cake.init()", 2)` with proper load handling
-- [ ] `portal2/portal1style/cake.js`: same fix
-- [ ] (`portal2/cake.js` already uses `addEventListener("load", ...)` — no change)
-- [ ] Update 2 AIU sidecars
-- [ ] Commit 2.4 to git
+- [x] ~~Subsumed by Commit 2.1~~ — the splash gate replaced both buggy `window.onLoad = setTimeout(...)` lines with proper `DOMContentLoaded` handlers. portal2/cake.js's `window.addEventListener("load", ...)` was likewise replaced. Sidecar work for these files was done in 2.1.
 
 ---
 
 ## Phase 3 — Tier 2 code quality (no visible behavior change)
 
 ### Commit 3.1 — IIFE / module wrap, eliminate implicit globals
-- [ ] Decide: `<script type="module">` vs IIFE (default: module)
-- [ ] Wrap `portal/cake.js` + update `portal/index.html` script tag
-- [ ] Wrap `portal2/cake.js` + update `portal2/index.html` script tag
-- [ ] Wrap `portal2/portal1style/cake.js` + update its index.html
-- [ ] Eliminate implicit globals (`x`, `timeout`, `nextChar`)
-- [ ] Update 6 AIU sidecars
-- [ ] Commit 3.1 to git
+- [x] Decided: **IIFE** (modules would break the inline `oninput=cake.setVolume(...)` handler in portal2/index.html unless we also remove inline handlers, which is out of this commit's scope)
+- [x] Wrap `portal/cake.js` in IIFE + `'use strict'` + `window.cake = cake`
+- [x] Wrap `portal2/cake.js` in IIFE + `'use strict'` + `window.cake = cake`
+- [x] Wrap `portal2/portal1style/cake.js` in IIFE + `'use strict'` + `window.cake = cake`
+- [x] Eliminate implicit globals (`x` in border-draw loops, `nextChar` in blink, `timeout` in processLyric*)
+- [x] Update 3 AIU sidecars (only cake.js sidecars; HTML files untouched this commit)
+- [ ] Commit 3.1 to git (pending — headless verification passed, all 3 variants still type lyrics with 23-28 unique chars and zero console errors under strict mode)
 
 ### Commit 3.2 — `appendChild(createTextNode())` instead of `innerHTML +=`
 - [ ] Rewrite `processLetter` in `portal/cake.js` — text node approach

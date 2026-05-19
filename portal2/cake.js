@@ -4,6 +4,9 @@
  * Based on a work at xbytez.eu
  */
 
+(function() {
+'use strict';
+
 var cake = {
     delayMultiplier: 1000,
 
@@ -100,7 +103,7 @@ var cake = {
 
     blink: function(blinker)
     {
-        nextChar = blinker.innerHTML;
+        var nextChar = blinker.innerHTML;
         var newChar = '_';
         if (nextChar == '_')
             newChar = '&nbsp;';
@@ -182,6 +185,7 @@ var cake = {
             {
                 letterdelay = delay / (text.length + 1);
             }
+            var timeout;
             for (var x = 0; x < text.length; x++)
             {
                 timeout = setTimeout(cake.processLetter, letterdelay * x, 'lyrics', index, text.charAt(x));
@@ -195,6 +199,7 @@ var cake = {
     processLyricLines: function()
     {
         var delay = 0;
+        var timeout;
         for (var index = 0; index < lyrics.length; index++)
         {
             timeout = setTimeout(cake.processLyricLine, delay, index);
@@ -271,7 +276,9 @@ var cake = {
             delay += credits[index].length * cake.creditsDelay;
         }
     }
-}
+};
+
+window.cake = cake;
 
 document.addEventListener('DOMContentLoaded', function() {
     cake.initMusicPlayer();
@@ -290,3 +297,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+})();

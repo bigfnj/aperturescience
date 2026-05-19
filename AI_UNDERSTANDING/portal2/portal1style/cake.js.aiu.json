@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal2/portal1style/cake.js",
-  "sha1": "87eb627542b928865a993aaad6b701a309d0b521",
+  "sha1": "dfd17d17c44bdb91dd3d4c3d59a5ce30321c5872",
   "purpose": "Legacy Portal 1-style runtime controller adapted for Portal 2 data. It waits for DOMContentLoaded, attaches splash dismissal handlers, then on user click/Space draws text borders, starts Want You Gone audio, types lyrics and credits, and blinks cursors.",
   "exports": [
     "cake"
@@ -34,7 +34,7 @@
     "cake.init runs only after the user dismisses the #splash overlay (click or Space) on DOMContentLoaded; this satisfies modern autoplay policy."
   ],
   "gotchas": [
-    "The file uses implicit globals such as x, timeout, and nextChar; strict mode would require cleanup.",
+    "The file body is wrapped in an IIFE with 'use strict'; cake is exposed to the page via window.cake = cake.",
     "initMusicPlayer declares delay twice, both effectively zero, and uses a local Want You Gone.mp3 path.",
     "setTimeout uses the 3-argument form (callback, delay, ...args) to capture loop-iteration values at schedule time so var-scoped loop variables do not produce the closure trap.",
     "The DOMContentLoaded handler assumes index.html provides an element with id 'splash'; without it splash.addEventListener throws and the credits never start."
