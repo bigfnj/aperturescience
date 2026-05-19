@@ -17,6 +17,16 @@ var cake = {
     firstLyricsIndex: 0,
     lastCreditsIndex: 0,
 
+    userReady: false,
+    audioReady: false,
+
+    tryStart: function()
+    {
+        if (cake.userReady && cake.audioReady) {
+            cake.init();
+        }
+    },
+
     init: function()
     {
         cake.lyricsdiv = document.getElementById("lyricstext");
@@ -49,8 +59,12 @@ var cake = {
         if (cake.player.play) {
             cake.player.setAttribute("prebuffer", "auto");
             cake.player.setAttribute("src", "Want You Gone.mp3");
-            cake.player.addEventListener("canplaythrough", cake.init);
+            cake.player.addEventListener("canplaythrough", function() {
+                cake.audioReady = true;
+                cake.tryStart();
+            });
         } else {
+            cake.audioReady = true;
             var ie = cake.checkForIE();
             if (ie > -1 && ie < 9) {
                 cake.lyricsdiv = document.getElementById("lyricstext");
@@ -264,10 +278,20 @@ var cake = {
     }
 }
 
-if (window.addEventListener){
-    window.addEventListener("load", cake.initMusicPlayer, false);
-} else if (window.attachEvent){
-    window.attachEvent("onload", cake.initMusicPlayer);
-} else {
-    console.error("Oh, dear god, what browser is this?\nFailed to set up event listener.");
-}
+document.addEventListener('DOMContentLoaded', function() {
+    cake.initMusicPlayer();
+    var splash = document.getElementById('splash');
+    function userReady() {
+        splash.classList.add('fade');
+        cake.userReady = true;
+        cake.tryStart();
+    }
+    splash.addEventListener('click', userReady, { once: true });
+    document.addEventListener('keydown', function onKey(e) {
+        if (e.code === 'Space' || e.key === ' ') {
+            e.preventDefault();
+            document.removeEventListener('keydown', onKey);
+            userReady();
+        }
+    });
+});

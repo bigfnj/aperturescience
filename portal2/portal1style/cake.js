@@ -298,5 +298,18 @@ var cake = {
     }
 }
 
-window.onLoad=setTimeout("cake.init()",2);
-//window.addEventListener("load",cake.init,0);
+document.addEventListener('DOMContentLoaded', function() {
+    var splash = document.getElementById('splash');
+    function startCake() {
+        splash.classList.add('fade');
+        cake.init();
+    }
+    splash.addEventListener('click', startCake, { once: true });
+    document.addEventListener('keydown', function onKey(e) {
+        if (e.code === 'Space' || e.key === ' ') {
+            e.preventDefault();
+            document.removeEventListener('keydown', onKey);
+            startCake();
+        }
+    });
+});

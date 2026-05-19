@@ -5,10 +5,22 @@
 <head>
 <title>xBytez - Aperture Science - CAKE</title>
 <link rel="stylesheet" type="text/css" href="style.css"/>
+<style>
+#splash { position: fixed; inset: 0; background: #000; color: yellow; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; font-family: monospace; text-align: center; cursor: pointer; transition: opacity 0.5s ease-out; }
+#splash.fade { opacity: 0; pointer-events: none; }
+#splash h1 { font-size: 2em; margin: 0 0 1em; font-weight: normal; letter-spacing: 0.1em; }
+#splash p { font-size: 1.2em; opacity: 0.85; }
+#splash .cursor { animation: splash-blink 1s steps(2) infinite; }
+@keyframes splash-blink { 50% { opacity: 0; } }
+</style>
 <script type="text/javascript" src="cakedata.js"></script>
 <script type="text/javascript" src="cake.js"></script>
 </head>
 <body>
+<div id="splash">
+<h1>INITIALIZE TEST CHAMBER PROTOCOL</h1>
+<p>PRESS [SPACE] OR CLICK TO BEGIN<span class="cursor">_</span></p>
+</div>
 <div id="lyrics">
 <div id="lyricsleft"></div>
 <div id="lyricstop"></div>
