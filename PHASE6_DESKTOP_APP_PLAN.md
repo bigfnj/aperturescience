@@ -23,7 +23,7 @@ Phase 6 does **not** include:
 ## Decisions in effect
 
 | Decision | Value |
-|---|---|
+| --- | --- |
 | Targets | Tauri **and** WallpaperEngine; skip screensaver |
 | Variants | All three with a picker, plus a Random option |
 | Loop behavior | Autoloop forever; splash visible ~5 s on each cycle then auto-dismiss; click/Space still works for faster manual dismiss |
@@ -327,28 +327,68 @@ When random mode navigates from variant A → launcher → variant B, the user g
 
 ---
 
-## Feature enhancements — to be defined by user
+## Feature enhancements
 
-User flagged 2026-05-19 that they want to enumerate feature enhancements before Phase 6 execution begins. Possible enhancements to consider (non-exhaustive prompt list):
+All 15 originally-seeded enhancements were accepted by user 2026-05-19, plus one new explicit ask. Grouped below by estimated effort so scope can be reality-checked.
 
-- [ ] Speed control (typing speed multiplier slider, similar to volume)
-- [ ] Skip-to-end / replay button mid-cycle
-- [ ] Multiple Portal songs? (e.g. "Cara Mia" from Portal 2 ending)
-- [ ] Visual theme selector (different border styles, color schemes)
-- [ ] Window controls overlay (Tauri-specific)
-- [ ] System tray icon with quick toggles
-- [ ] Hotkeys (F11 fullscreen, M mute, R restart)
-- [ ] Crossfade between variants in random mode (currently hard cut)
-- [ ] Stats overlay (current variant, time remaining)
-- [ ] Local storage of last-used variant
-- [ ] CLI args for Tauri (`--variant portal2`, `--fullscreen`, etc.)
-- [ ] Single-instance enforcement
-- [ ] Update checker
-- [ ] Crash reporting / error boundary
-- [ ] i18n (Portal credits exist in multiple languages on Valve's side)
-- [ ] Accessibility (screen-reader-friendly mode, captions toggle)
+### NEW — Text color modes (portal/ and portal2/portal1style/ only)
 
-User to fill in / prioritize before we proceed.
+User-explicit ask: "change the color of the text, have it multi-colored or have it cycle through colors slowly." Applies to portal/ (Still Alive) and portal2/portal1style/ (Want You Gone in Portal 1 layout). Excludes portal2/ — its gold-on-radial design is intentionally untouched.
+
+**Modes via `?textcolor=` URL param:**
+- `default` (or absent) → existing yellow
+- `cycle` → slow hue rotation, ~60 s loop, applied via CSS `filter: hue-rotate()` keyframe animation on `body`
+- `rainbow` → per-line discrete colors from a 6-color palette via `#lyricstext > span:nth-child(6n+k)` selectors (CSS-only, no JS-per-line work)
+- Hex like `%23FF00FF` (URL-encoded `#FF00FF`) → fixed user-picked single color, applied by setting `--text-color` CSS variable
+
+**Files touched:**
+- `portal/style.css` and `portal2/portal1style/style.css` — add `:root { --text-color: yellow; }`, change `body { color: yellow }` to `color: var(--text-color)`, add `@keyframes color-cycle` + `.color-cycle` + `.color-rainbow` rules
+- `portal/cake.js` and `portal2/portal1style/cake.js` — in DOMContentLoaded handler, read `URLSearchParams.get('textcolor')`, apply class or CSS var accordingly
+- `launcher/index.html` — extend the picker with a "DISPLAY MODE" section: radio buttons for DEFAULT / CYCLE / RAINBOW / CUSTOM; show `<input type="color">` only when CUSTOM selected; apply selected mode by appending `&textcolor=...` to variant URL (only when navigating to portal/ or portal2/portal1style/; portal2/ navigation strips the param)
+- 4 sidecars (2 CSS, 2 JS)
+
+**Scope:** small. One commit, ~half hour.
+
+### Tier 1 — small, batchable (each ~30-60 min)
+
+- [ ] **Text color modes** (above) — fits here
+- [ ] **Hotkeys** (F11 fullscreen, M mute, R restart variant, N next variant in random mode, Esc returns to launcher) — small handler in cake.js + launcher
+- [ ] **Local storage of last-used variant + last-used color mode** — launcher reads/writes localStorage so the next launch preselects
+- [ ] **Skip-to-end / replay button** — small overlay button visible after splash, restarts cycle or skips to credits end
+- [ ] **Stats overlay** — small bottom-right text showing variant + elapsed time, toggleable with `S` key
+- [ ] **Crossfade between variants in random mode** — JS opacity transition in launcher, ~1-2 s fade between consecutive cycles (currently hard cut via location.assign)
+
+### Tier 2 — medium (each 1-3 hr)
+
+- [ ] **Speed control** — typing speed multiplier (0.5×, 1×, 1.5×, 2×, 3×) applied to all setTimeout timings. Tricky because the credit-pacing math derives delays from total character count; multiplier needs to flow through `cake.delayMultiplier` and the runtime `cake.creditsDelay` computation
+- [ ] **Visual theme selector** — beyond text color: alternate border styles (double pipes, em-dashes, solid lines), alternate background tints, alternate font (preserve monospace constraint)
+- [ ] **CLI args for Tauri** (`--variant portal2`, `--fullscreen`, `--color cycle`) — passes through to launcher via env or query param
+- [ ] **Window controls overlay (Tauri)** — custom title bar, frameless window with draggable region, close/minimize/maximize buttons
+- [ ] **Single-instance enforcement** — Tauri plugin so launching the app twice raises the existing window instead of opening a new one
+
+### Tier 3 — large (each ½-1 day +)
+
+- [ ] **System tray icon** — tray menu with quick toggles (variant selector, mute, quit), Tauri tray API + state coordination
+- [ ] **Other Portal songs** — add "Cara Mia Addio" (Portal 2 ending) as a fourth variant. Significant work: needs new cakedata.js with line-by-line timing data, lyric text, and credit list. Audio file too.
+- [ ] **i18n** — Valve ships Portal credits in many languages. Would need lyric translation data plus a language picker. Big.
+- [ ] **Accessibility** — screen-reader mode (text-to-speech fallback for credits typing), captions toggle, prefers-reduced-motion expansion to all typing animations (not just CSS ones)
+- [ ] **Update checker** — Tauri updater plugin + GitHub Releases integration; requires actually publishing releases
+- [ ] **Crash reporting / error boundary** — adds Sentry-style dependency; probably overkill for a credits app
+
+### Scope reality check
+
+Original Phase 6 estimate (4 commits + close-out): **~half day**.
+
+If we execute all Tier 1 plus the color modes: **+~3 hours**. Still doable in a session.
+
+If we add Tier 2: **another 8-12 hours** spread across a couple sessions.
+
+If we add Tier 3 in full: **multiple days**.
+
+User input needed before execution begins:
+1. Confirm scope tier (Tier 1 only? Tier 1+2? Everything?)
+2. Within each tier, any items to deprioritize?
+3. Sequence — color modes first since they were the user-explicit ask, or roll alphabetically?
 
 ---
 
