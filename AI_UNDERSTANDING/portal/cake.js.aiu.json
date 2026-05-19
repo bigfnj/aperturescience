@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal/cake.js",
-  "sha1": "51913687f781a0ebb212cbe62211ab5beeee22f5",
+  "sha1": "e11dd15da12689ed4a7c651d9cbf8bbfb2cf0242",
   "purpose": "Runtime controller for the Portal 1 credits animation. It waits for DOMContentLoaded, attaches splash dismissal handlers, then on user click/Space starts audio, draws text borders, types lyric and credit data character by character, blinks cursors, and swaps ASCII art according to lyric metadata.",
   "exports": [
     "cake"
@@ -36,7 +36,7 @@
   ],
   "gotchas": [
     "The file uses implicit globals such as x, timeout, and nextChar; enabling strict mode without cleanup would break it.",
-    "Most timers use string-form setTimeout, so quote escaping in cakedata text is part of the runtime contract.",
+    "setTimeout uses the 3-argument form (callback, delay, ...args) to capture loop-iteration values (text.charAt(x), index) at schedule time so the var-scoped loop variables don't produce the closure trap.",
     "initMusicPlayer relies on the local Still Alive.ogg filename next to index.html.",
     "The DOMContentLoaded handler assumes index.html provides an element with id 'splash'; without it splash.addEventListener throws and the credits never start."
   ],

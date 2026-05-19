@@ -31,15 +31,15 @@ Each top-level commit is one checkbox; sub-tasks track per-file work.
 - [x] Gate `cake.initMusicPlayer()`/`cake.init()` behind splash dismissal in `portal2/cake.js`
 - [x] Gate `cake.init()` behind splash dismissal in `portal2/portal1style/cake.js`
 - [x] Update 6 AIU sidecars (3 HTML + 3 JS) with new sha1 + invariants/gotchas
-- [ ] Commit 2.1 to git (PAUSED — awaiting user browser verification)
+- [x] Commit 2.1 to git (`ccd53c5`, preceded by bootstrap commit `c590f46`)
 
 ### Commit 2.2 — Replace string-form `setTimeout` with closure form
-- [ ] `portal/cake.js`: convert all `setTimeout("...", n)` to arrow form
-- [ ] `portal2/cake.js`: convert all `setTimeout("...", n)` to arrow form
-- [ ] `portal2/portal1style/cake.js`: convert all `setTimeout("...", n)` to arrow form
-- [ ] Simplify `processLetter` (drop manual `&lt;`/`&gt;`/`&nbsp;` escaping — handled by 3.2 if done together)
-- [ ] Update 3 AIU sidecars (remove "string-form setTimeout makes quote escaping part of the runtime contract" gotcha)
-- [ ] Commit 2.2 to git
+- [x] `portal/cake.js`: convert all `setTimeout("...", n)` to closure form
+- [x] `portal2/cake.js`: convert all `setTimeout("...", n)` to closure form
+- [x] `portal2/portal1style/cake.js`: convert all `setTimeout("...", n)` to closure form
+- [ ] ~~Simplify `processLetter`~~ — deferred to Commit 3.2 (entity-escaping is innerHTML's concern, not eval's)
+- [x] Update 3 AIU sidecars (replace string-form gotcha with note about setTimeout 3-arg form)
+- [ ] Commit 2.2 to git (pending)
 
 ### Commit 2.3 — Drop `cake.smash()` tamper trap
 - [ ] Remove the `if (cake.blinkerTime != 300)` branch in `blink()` — `portal/cake.js`

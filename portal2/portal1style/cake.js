@@ -41,7 +41,7 @@ var cake = {
         {
             cake.player.setAttribute('prebuffer', 'auto');
             cake.player.setAttribute('src','Want You Gone.mp3');
-            setTimeout("cake.player.play()",delay);
+            setTimeout(function() { cake.player.play(); }, delay);
         }
     },
 
@@ -204,11 +204,11 @@ var cake = {
             }
             for (var x=0; x<text.length; x++)
             {
-                timeout=setTimeout("cake.processLetter('lyrics',"+index+",\""+text.substring(x,x+1)+"\")",letterdelay*x);
+                timeout=setTimeout(cake.processLetter, letterdelay*x, 'lyrics', index, text.charAt(x));
             }
             if (curlyric['nonewline']==0)
             {
-                timeout=setTimeout("cake.processLetter('lyrics',"+index+",'newline')",letterdelay*text.length);
+                timeout=setTimeout(cake.processLetter, letterdelay*text.length, 'lyrics', index, 'newline');
             }
         }
     },
@@ -217,7 +217,7 @@ var cake = {
         var delay=0;
         for (var index=0; index<lyrics.length; index++)
         {
-            timeout=setTimeout("cake.processLyricLine("+(index)+")",delay);
+            timeout=setTimeout(cake.processLyricLine, delay, index);
             delay+=lyrics[index]['delay']*cake.delayMultiplier;
         }
     },
@@ -273,10 +273,10 @@ var cake = {
         var text=credits[index];
         for (var x=0; x<text.length; x++)
         {
-            setTimeout("cake.processLetter('credits',"+index+",\""+text.substring(x,x+1)+"\")",cake.creditsDelay*x);
+            setTimeout(cake.processLetter, cake.creditsDelay*x, 'credits', index, text.charAt(x));
         }
         if (index<credits.length-1)
-            setTimeout("cake.processLetter('credits',"+index+",'newline')",cake.creditsDelay*text.length);
+            setTimeout(cake.processLetter, cake.creditsDelay*text.length, 'credits', index, 'newline');
     },
 
     processCreditLines: function()
@@ -291,7 +291,7 @@ var cake = {
         var delay=cake.creditsStartTime*cake.delayMultiplier;
         for (var index=0; index<credits.length; index++)
         {
-            setTimeout("cake.processCreditLine("+index+")",delay);
+            setTimeout(cake.processCreditLine, delay, index);
             delay+=credits[index].length*cake.creditsDelay;
         }
 
