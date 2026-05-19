@@ -4,20 +4,9 @@
  * Based on a work at xbytez.eu
  */
 
-@-webkit-keyframes buffer {    0% {  top: -40%;  }    80%, 100% {  top: 140%;  }    }
-   @-moz-keyframes buffer {    0% {  top: -40%;  }    80%, 100% {  top: 140%;  }    }
-     @-o-keyframes buffer {    0% {  top: -40%;  }    80%, 100% {  top: 140%;  }    }
-        @keyframes buffer {    0% {  top: -40%;  }    80%, 100% {  top: 140%;  }    }
-
-@-webkit-keyframes dots_down {    0% {  transform: translateY(-63%) scaleY(0.5);  }    100% {  transform: translateY(-25.5%) scaleY(0.5);  }    }
-   @-moz-keyframes dots_down {    0% {  transform: translateY(-63%) scaleY(0.5);  }    100% {  transform: translateY(-25.5%) scaleY(0.5);  }    }
-     @-o-keyframes dots_down {    0% {  transform: translateY(-63%) scaleY(0.5);  }    100% {  transform: translateY(-25.5%) scaleY(0.5);  }    }
-        @keyframes dots_down {    0% {  transform: translateY(-63%) scaleY(0.5);  }    100% {  transform: translateY(-25.5%) scaleY(0.5);  }    }
-
-@-webkit-keyframes dots_up {    0% {  transform: translateY(-25.5%) scaleY(0.5);  }    100% {  transform: translateY(-63%) scaleY(0.5);  }    }
-   @-moz-keyframes dots_up {    0% {  transform: translateY(-25.5%) scaleY(0.5);  }    100% {  transform: translateY(-63%) scaleY(0.5);  }    }
-     @-o-keyframes dots_up {    0% {  transform: translateY(-25.5%) scaleY(0.5);  }    100% {  transform: translateY(-63%) scaleY(0.5);  }    }
-        @keyframes dots_up {    0% {  transform: translateY(-25.5%) scaleY(0.5);  }    100% {  transform: translateY(-63%) scaleY(0.5);  }    }
+@keyframes buffer    { 0% { top: -40%; }                                       80%, 100% { top: 140%; } }
+@keyframes dots_down { 0% { transform: translateY(-63%) scaleY(0.5); }         100%      { transform: translateY(-25.5%) scaleY(0.5); } }
+@keyframes dots_up   { 0% { transform: translateY(-25.5%) scaleY(0.5); }       100%      { transform: translateY(-63%) scaleY(0.5); } }
 
 body {
     color: #967533;
@@ -27,16 +16,8 @@ body {
     margin: 0;
     text-align: center;
     position: relative;
-    background: #7e521d; /* Old browsers */
-    background: -moz-radial-gradient(center, ellipse cover, #7e521d 0%, #7e521d 45%, #4a3219 100%); /* FF3.6-15 */
-    background: -webkit-radial-gradient(center, ellipse cover, #7e521d 0%,#7e521d 45%,#4a3219 100%); /* Chrome10-25,Safari5.1-6 */
-    background: radial-gradient(ellipse at center, #7e521d 0%,#7e521d 45%,#4a3219 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7e521d', endColorstr='#4a3219',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-    -webkit-background-size: cover;
-       -moz-background-size: cover;
-        -ms-background-size: cover;
-         -o-background-size: cover;
-            background-size: cover;
+    background: radial-gradient(ellipse at center, #7e521d 0%, #7e521d 45%, #4a3219 100%);
+    background-size: cover;
 }
 
 #container {
@@ -107,11 +88,7 @@ body {
     right: 1em;
     line-height: 1;
     cursor: default;
-    -webkit-user-select: none;
-       -moz-user-select: none;
-        -ms-user-select: none;
-         -o-user-select: none;
-            user-select: none;
+    user-select: none;
 }
 #ui > div {
     border: 2px solid;
@@ -172,18 +149,12 @@ body {
 #dotsleft {
     left: 0.25em;
     top: 0;
-    -webkit-animation: dots_down 2.5s linear 0s infinite normal;
-       -moz-animation: dots_down 2.5s linear 0s infinite normal;
-         -o-animation: dots_down 2.5s linear 0s infinite normal;
-            animation: dots_down 2.5s linear 0s infinite normal;
+    animation: dots_down 2.5s linear 0s infinite normal;
 }
 #dotsright {
     right: 0.25em;
     top: 0;
-    -webkit-animation: dots_up 2.5s linear 0s infinite normal;
-       -moz-animation: dots_up 2.5s linear 0s infinite normal;
-         -o-animation: dots_up 2.5s linear 0s infinite normal;
-            animation: dots_up 2.5s linear 0s infinite normal;
+    animation: dots_up 2.5s linear 0s infinite normal;
 }
 
 #volume {
@@ -200,13 +171,7 @@ body {
     z-index: 10;
     pointer-events: none;
 
-    background: -webkit-linear-gradient(top, rgba(126,82,29,0) 0%,rgba(126,82,29,0) 1%,rgba(126,82,29,1) 100%); /* Chrome10-25,Safari5.1-6 */
-    background: -moz-linear-gradient(top, rgba(126,82,29,0) 0%, rgba(126,82,29,0) 1%, rgba(126,82,29,1) 100%); /* FF3.6-15 */
-    background: linear-gradient(to bottom, rgba(126,82,29,0) 0%,rgba(126,82,29,0) 1%,rgba(126,82,29,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#007e521d', endColorstr='#7e521d',GradientType=0 ); /* IE6-9 */
+    background: linear-gradient(to bottom, rgba(126,82,29,0) 0%, rgba(126,82,29,0) 1%, rgba(126,82,29,1) 100%);
 
-    -webkit-animation: buffer 2s linear 1s infinite normal;
-       -moz-animation: buffer 2s linear 1s infinite normal;
-         -o-animation: buffer 2s linear 1s infinite normal;
-            animation: buffer 2s linear 1s infinite normal;
+    animation: buffer 2s linear 1s infinite normal;
 }
