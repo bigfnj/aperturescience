@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal2/cake.js",
-  "sha1": "68c0b336244b448e46349f3c945fedf249c04925",
+  "sha1": "45ada039d0ae16ccedf306915ce4e87f43c180b6",
   "purpose": "Runtime controller for the modern Portal 2 credits animation. It waits for DOMContentLoaded, kicks off audio preloading, attaches splash dismissal handlers, and runs cake.init only when both the user has dismissed the splash and the audio canplaythrough event has fired. It types lyrics and credits, handles cursor blinking, computes credit pacing, and exposes volume control.",
   "exports": [
     "cake"
@@ -15,12 +15,7 @@
     "portal2/index.html"
   ],
   "calls_out_to": [
-    "window.addEventListener",
     "document.addEventListener",
-    "navigator.appName",
-    "navigator.userAgent",
-    "RegExp.exec",
-    "parseFloat",
     "console.error",
     "document.getElementById",
     "document.createElement",
@@ -37,10 +32,9 @@
     "tryStart is the single dispatch point that decides whether to call cake.init; both userReady and audioReady must be true."
   ],
   "gotchas": [
-    "If canplaythrough never fires, cake.audioReady stays false and the splash click does not start playback. The IE fallback branch sets audioReady = true so the (broken) IE message at least becomes visible after splash dismiss.",
+    "If canplaythrough never fires, cake.audioReady stays false and the splash click does not start playback. The 'audio unavailable' fallback branch sets audioReady = true so the page at least dismisses past the splash, but no music plays.",
     "The file body is wrapped in an IIFE with 'use strict'; cake is exposed to the page via window.cake = cake so the inline #volume oninput/onchange handlers in portal2/index.html still reach cake.setVolume.",
     "setTimeout uses the 3-argument form (callback, delay, ...args) to capture loop-iteration values at schedule time so var-scoped loop variables do not produce the closure trap.",
-    "The IE fallback only reports a message for IE versions below 9; it does not provide non-audio playback.",
     "The DOMContentLoaded handler assumes index.html provides an element with id 'splash'; without it splash.addEventListener throws and the credits never start."
   ],
   "key_functions": [

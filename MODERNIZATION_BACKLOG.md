@@ -73,11 +73,11 @@ Each top-level commit is one checkbox; sub-tasks track per-file work.
 - [ ] Commit 3.2 to git (pending — headless verified, 26-29 unique chars typed in 7s, no errors)
 
 ### Commit 3.3 — Delete IE compatibility code
-- [ ] Remove `checkForIE()` function from `portal2/cake.js`
-- [ ] Remove `window.attachEvent` fallback from `portal2/cake.js`
-- [ ] Replace conditional `addEventListener`/`attachEvent` with plain `addEventListener`
-- [ ] Update 1 AIU sidecar
-- [ ] Commit 3.3 to git
+- [x] Remove `checkForIE()` function from `portal2/cake.js`
+- [x] Remove IE-specific message branch in `initMusicPlayer`'s else block; keep generic console.error fallback
+- [x] (`window.attachEvent` was already removed in Commit 2.1 via the DOMContentLoaded handler conversion)
+- [x] Update 1 AIU sidecar (sha1, drop navigator/RegExp/parseFloat from calls_out_to, simplify IE-fallback gotcha)
+- [ ] Commit 3.3 to git (pending — headless verified)
 
 ### Commit 3.4 — Modernize idioms (`~~vol`, `void(0)`, `var`, `for...in`)
 - [ ] `portal2/cake.js`: `~~vol / 100` → `Number(vol) / 100`

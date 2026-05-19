@@ -45,17 +45,6 @@ var cake = {
         cake.processCreditLines();
 
     },
-    checkForIE: function()
-    {
-        var result = -1;
-        if (navigator.appName == "Microsoft Internet Explorer") {
-            var userAgent = navigator.userAgent;
-            var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-            if (re.exec(userAgent) != null)
-                result = parseFloat(RegExp.$1);
-        }
-        return result;
-    },
     initMusicPlayer: function()
     {
         cake.player = document.createElement("audio");
@@ -68,13 +57,7 @@ var cake = {
             });
         } else {
             cake.audioReady = true;
-            var ie = cake.checkForIE();
-            if (ie > -1 && ie < 9) {
-                cake.lyricsdiv = document.getElementById("lyricstext");
-                cake.lyricsdiv.innerText = "I'm sorry, this only works on IE9+ or better browsers";
-            } else {
-                console.error("Oddly enough, the audio cannot be played.");
-            }
+            console.error("Audio playback unavailable.");
         }
     },
     setVolume: function(vol)
