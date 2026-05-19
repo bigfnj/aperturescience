@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "path": "portal2/portal1style/index.html",
+  "sha1": "7ac3ff1e5da9082c190f11a5da94aae865c998f6",
+  "purpose": "Alternate Portal 2 credits page that uses the older Portal 1 terminal layout. It loads local style, cakedata, and cake scripts, provides lyric and credit border containers, and includes a fullscreen #splash overlay that gates the credits sequence behind user click/keypress to satisfy modern autoplay policy.",
+  "exports": [],
+  "imports": [
+    "portal2/portal1style/style.css",
+    "portal2/portal1style/cakedata.js",
+    "portal2/portal1style/cake.js"
+  ],
+  "called_by": [],
+  "calls_out_to": [
+    "Browser HTML parser",
+    "CSS stylesheet loading",
+    "script loading"
+  ],
+  "invariants": [
+    "cakedata.js must load before cake.js because cake.js reads global credits and lyrics.",
+    "The lyrics and credits border ids are runtime API for portal2/portal1style/cake.js and style.css.",
+    "The #splash element with id 'splash' is the autoplay-policy gate; portal2/portal1style/cake.js queries it on DOMContentLoaded and dismisses it on click or Space."
+  ],
+  "gotchas": [
+    "The file declares XHTML 1.0 Strict while serving a Portal 2 song/data set, which is intentional for the alternate old-style presentation.",
+    "Splash overlay styles are inline in <head>; removing the inline <style> block breaks the splash gate visually."
+  ]
+}

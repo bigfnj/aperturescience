@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "path": "portal2/cakedata.js",
+  "sha1": "b2b17f8e70da7c70eeef73b3fb600e63332ac570",
+  "purpose": "Data table for the Portal 2 credits recreation. It defines the Portal 2 personnel credits and the timed lyric segments for \"Want You Gone\" consumed by portal2/cake.js.",
+  "exports": [
+    "credits",
+    "lyrics"
+  ],
+  "imports": [],
+  "called_by": [
+    "portal2/index.html",
+    "portal2/cake.js"
+  ],
+  "calls_out_to": [],
+  "invariants": [
+    "lyrics entries provide delay, text, nonewline, and clear fields because portal2/cake.js reads those names directly.",
+    "credits remains an ordered array; scroll timing is derived from total credit character count.",
+    "Delay values are in seconds and are converted by cake.delayMultiplier at runtime."
+  ],
+  "gotchas": [
+    "Text is injected through string-form setTimeout in portal2/cake.js, so unescaped double quotes in lyric or credit text can break playback.",
+    "Some credit and lyric strings contain non-ASCII names and punctuation; preserve file encoding when editing."
+  ]
+}

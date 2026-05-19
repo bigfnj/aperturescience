@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "path": "portal2/portal1style/style.css",
+  "sha1": "2783d2f8e3a54fe835222869b7e43b0b66e08481",
+  "purpose": "Portal 1-style terminal layout reused for the Portal 2 \"Want You Gone\" alternate page. It positions lyric and credit boxes and includes leftover picture-region styling.",
+  "exports": [
+    "body",
+    "#lyrics",
+    "#lyricstext",
+    "#lyricsleft",
+    "#lyricsright",
+    "#lyricstop",
+    "#lyricsbottom",
+    "#credits",
+    "#creditstext",
+    "#creditsleft",
+    "#creditsright",
+    "#creditstop",
+    "#creditsbottom",
+    "#picture"
+  ],
+  "imports": [],
+  "called_by": [
+    "portal2/portal1style/index.html"
+  ],
+  "calls_out_to": [
+    "CSS absolute positioning",
+    "monospace font rendering"
+  ],
+  "invariants": [
+    "Dimensions align with the hard-coded text border counts in portal2/portal1style/cake.js.",
+    "The lyric and credit containers remain fixed-position boxes, matching the legacy Portal 1 look."
+  ],
+  "gotchas": [
+    "#picture styling is present even though portal2/portal1style/index.html does not declare a picture element."
+  ]
+}

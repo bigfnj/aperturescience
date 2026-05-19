@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "project": "aperturescience",
+  "last_audit_commit": "db744576d3a729a55497ad01e65b0e373fd78c8b",
+  "last_audit_at": "2026-05-19T15:23:52.000Z",
+  "generator": "ai-context-runner/4.4.0",
+  "overview": "Static HTML/CSS/JavaScript recreation of the Portal and Portal 2 end-credit sequences. Each page loads local data arrays, a local controller script, and local audio to type lyrics and credits into fixed monospace layouts without a build system.",
+  "frameworks": [
+    {
+      "name": "Vanilla JavaScript"
+    },
+    {
+      "name": "Browser DOM API"
+    },
+    {
+      "name": "HTML5 Audio"
+    },
+    {
+      "name": "Static HTML/CSS"
+    }
+  ],
+  "test_command": "",
+  "tracked_globs": {
+    "include": [
+      "portal/**/*.html",
+      "portal/**/*.css",
+      "portal/**/*.js",
+      "portal2/**/*.html",
+      "portal2/**/*.css",
+      "portal2/**/*.js"
+    ],
+    "exclude": [
+      "AI_UNDERSTANDING/**",
+      ".git/**",
+      "**/*.ogg",
+      "**/*.mp3"
+    ]
+  },
+  "graph": "portal/index.html -> portal/style.css, portal/cakedata.js, portal/cake.js, portal/Still Alive.ogg\nportal/cake.js -> global asciiart, credits, lyrics from portal/cakedata.js\nportal2/index.html -> portal2/style.css, portal2/cakedata.js, portal2/cake.js, portal2/Want You Gone.mp3\nportal2/index.html -> cake.setVolume via inline #volume handlers\nportal2/cake.js -> global credits, lyrics from portal2/cakedata.js\nportal2/portal1style/index.html -> portal2/portal1style/style.css, cakedata.js, cake.js, Want You Gone.mp3\nportal2/portal1style/cake.js -> global credits, lyrics from portal2/portal1style/cakedata.js"
+}

@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "path": "portal2/portal1style/cake.js",
+  "sha1": "b0d4a6ad9f413b421deeb755a05ece0e7745febe",
+  "purpose": "Legacy Portal 1-style runtime controller adapted for Portal 2 data. It waits for DOMContentLoaded, attaches splash dismissal handlers, then on user click/Space draws text borders, starts Want You Gone audio, types lyrics and credits, and blinks cursors.",
+  "exports": [
+    "cake"
+  ],
+  "imports": [
+    "DOM globals",
+    "portal2/portal1style/cakedata.js globals: credits, lyrics",
+    "Want You Gone.mp3"
+  ],
+  "called_by": [
+    "portal2/portal1style/index.html"
+  ],
+  "calls_out_to": [
+    "document.getElementById",
+    "document.createElement",
+    "document.addEventListener",
+    "Element.insertBefore",
+    "Element.appendChild",
+    "Element.removeChild",
+    "Element.classList.add",
+    "setTimeout",
+    "HTMLAudioElement.play",
+    "alert"
+  ],
+  "invariants": [
+    "cake.init must run after the HTML containers exist; it draws borders before scheduling line rendering.",
+    "processLyricLine and processCreditLine assume global lyrics and credits arrays are loaded before this file.",
+    "creditsMaxTime and creditsStartTime determine the full credit scroll pacing from total character count.",
+    "Border character counts in drawLyricsBorder and drawCreditsBorder must stay aligned with the CSS box widths.",
+    "cake.init runs only after the user dismisses the #splash overlay (click or Space) on DOMContentLoaded; this satisfies modern autoplay policy."
+  ],
+  "gotchas": [
+    "The file uses implicit globals such as x, timeout, and nextChar; strict mode would require cleanup.",
+    "initMusicPlayer declares delay twice, both effectively zero, and uses a local Want You Gone.mp3 path.",
+    "String-form setTimeout makes quote escaping in cakedata text part of the runtime contract.",
+    "The DOMContentLoaded handler assumes index.html provides an element with id 'splash'; without it splash.addEventListener throws and the credits never start."
+  ],
+  "key_functions": [
+    {
+      "name": "init",
+      "summary": "Caches DOM containers, draws text borders, initializes credits and blinkers, starts audio, then schedules rendering."
+    },
+    {
+      "name": "processLyricLine",
+      "summary": "Creates lyric spans in chronological order, handles clear markers, and schedules per-character typing."
+    },
+    {
+      "name": "processCreditLine",
+      "summary": "Maintains the visible credit window and schedules per-character credit typing."
+    }
+  ]
+}

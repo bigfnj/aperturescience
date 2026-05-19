@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "path": "portal/style.css",
+  "sha1": "49e9dafabc8d53466a356e8edd3df78b4119a8f9",
+  "purpose": "Fixed-position terminal-style layout for the original Portal credits page. It places the lyric box, credits box, and ASCII art picture area on a black monospace canvas.",
+  "exports": [
+    "body",
+    "#lyrics",
+    "#lyricstext",
+    "#lyricsleft",
+    "#lyricsright",
+    "#lyricstop",
+    "#lyricsbottom",
+    "#credits",
+    "#creditstext",
+    "#creditsleft",
+    "#creditsright",
+    "#creditstop",
+    "#creditsbottom",
+    "#picture"
+  ],
+  "imports": [],
+  "called_by": [
+    "portal/index.html"
+  ],
+  "calls_out_to": [
+    "CSS absolute positioning",
+    "monospace font rendering"
+  ],
+  "invariants": [
+    "Dimensions are expressed in em units that match the hard-coded border character counts in portal/cake.js.",
+    "The #picture region must stay present for cake.setPicture output."
+  ],
+  "gotchas": [
+    "The layout is not responsive; widening or shrinking content can easily misalign the text-drawn borders."
+  ]
+}

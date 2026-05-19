@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "path": "portal/cakedata.js",
+  "sha1": "4eb23e9507c9368e597ff72f509bb2c08aaaf133",
+  "purpose": "Data table for the Portal 1 credits recreation. It defines global ASCII art frames, the personnel credits list, and timed lyric segments for \"Still Alive\".",
+  "exports": [
+    "asciiart",
+    "credits",
+    "lyrics"
+  ],
+  "imports": [],
+  "called_by": [
+    "portal/index.html",
+    "portal/cake.js"
+  ],
+  "calls_out_to": [],
+  "invariants": [
+    "lyrics entries provide delay, text, nonewline, clear, and changepicture fields because portal/cake.js reads those names directly.",
+    "changepicture values must reference stringified keys in asciiart, or -1 when no art change is wanted.",
+    "credits remains an ordered array; scroll timing is derived from the total character count."
+  ],
+  "gotchas": [
+    "delay values are strings but are intentionally multiplied by cake.delayMultiplier, relying on JavaScript numeric coercion.",
+    "Text is injected through string-form setTimeout in portal/cake.js, so unescaped double quotes in lyric or credit text can break playback."
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "path": "portal2/cake.js",
+  "sha1": "f6029986450a0c78a9648f7a33439604bb8b5c30",
+  "purpose": "Runtime controller for the modern Portal 2 credits animation. It waits for DOMContentLoaded, kicks off audio preloading, attaches splash dismissal handlers, and runs cake.init only when both the user has dismissed the splash and the audio canplaythrough event has fired. It types lyrics and credits, handles cursor blinking, computes credit pacing, and exposes volume control.",
+  "exports": [
+    "cake"
+  ],
+  "imports": [
+    "DOM globals",
+    "portal2/cakedata.js globals: credits, lyrics",
+    "Want You Gone.mp3"
+  ],
+  "called_by": [
+    "portal2/index.html"
+  ],
+  "calls_out_to": [
+    "window.addEventListener",
+    "document.addEventListener",
+    "navigator.appName",
+    "navigator.userAgent",
+    "RegExp.exec",
+    "parseFloat",
+    "console.error",
+    "document.getElementById",
+    "document.createElement",
+    "Element.classList.add",
+    "HTMLAudioElement.addEventListener",
+    "HTMLAudioElement.play",
+    "setTimeout"
+  ],
+  "invariants": [
+    "initMusicPlayer is invoked from DOMContentLoaded and sets cake.audioReady = true via canplaythrough. cake.init does not run until both cake.userReady (set by splash dismissal) and cake.audioReady are true.",
+    "The #volume input calls cake.setVolume inline, so setVolume must remain on the global cake object.",
+    "processLyricLine and processCreditLine assume global lyrics and credits arrays are loaded first.",
+    "creditsMaxTime and creditsStartTime determine the full credit scroll pacing from total character count.",
+    "tryStart is the single dispatch point that decides whether to call cake.init; both userReady and audioReady must be true."
+  ],
+  "gotchas": [
+    "If canplaythrough never fires, cake.audioReady stays false and the splash click does not start playback. The IE fallback branch sets audioReady = true so the (broken) IE message at least becomes visible after splash dismiss.",
+    "The file uses implicit globals such as timeout and nextChar; strict mode would require cleanup.",
+    "String-form setTimeout makes quote escaping in cakedata text part of the runtime contract.",
+    "The IE fallback only reports a message for IE versions below 9; it does not provide non-audio playback.",
+    "The DOMContentLoaded handler assumes index.html provides an element with id 'splash'; without it splash.addEventListener throws and the credits never start."
+  ],
+  "key_functions": [
+    {
+      "name": "initMusicPlayer",
+      "summary": "Creates the audio element, points it at Want You Gone.mp3, and on canplaythrough flips cake.audioReady = true and calls tryStart."
+    },
+    {
+      "name": "tryStart",
+      "summary": "Gate function; calls cake.init only when both userReady (set by splash dismissal) and audioReady (set by canplaythrough) are true."
+    },
+    {
+      "name": "setVolume",
+      "summary": "Normalizes the slider value to 0..1 and updates the HTMLAudioElement volume when available."
+    },
+    {
+      "name": "processLyricLine",
+      "summary": "Places a lyric span in chronological order, handles clear markers, and schedules per-character typing."
+    },
+    {
+      "name": "processCreditLine",
+      "summary": "Keeps only a sliding window of visible credits and types each credit line at the computed pace."
+    }
+  ]
+}

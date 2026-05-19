@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "path": "portal2/portal1style/cakedata.js",
+  "sha1": "878414806c65b3bf9add0442ed6858948dc12803",
+  "purpose": "Alternate data table for the Portal 2 credits in the Portal 1-style presentation. It defines global credits and lyrics arrays consumed by portal2/portal1style/cake.js.",
+  "exports": [
+    "credits",
+    "lyrics"
+  ],
+  "imports": [],
+  "called_by": [
+    "portal2/portal1style/index.html",
+    "portal2/portal1style/cake.js"
+  ],
+  "calls_out_to": [],
+  "invariants": [
+    "lyrics entries provide delay, text, nonewline, and clear fields because portal2/portal1style/cake.js reads those names directly.",
+    "credits remains an ordered array; scroll timing is derived from total credit character count.",
+    "The data omits Portal 1 asciiart/changepicture fields because the alternate Portal 2 runtime never renders picture art."
+  ],
+  "gotchas": [
+    "Text is injected through string-form setTimeout in portal2/portal1style/cake.js, so unescaped double quotes in lyric or credit text can break playback.",
+    "The final lyric text differs slightly from portal2/cakedata.js, including a trailing space on the last \"gone\" entry."
+  ]
+}

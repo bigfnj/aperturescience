@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "path": "portal2/style.css",
+  "sha1": "6e126c276589bf507b89c95fa157202150a39718",
+  "purpose": "Portal 2 visual theme for the \"Want You Gone\" page. It creates the brown radial background, fixed 1080x600 credits panel, animated scanner buffer, dot animations, and Aperture UI widgets.",
+  "exports": [
+    "@keyframes buffer",
+    "@keyframes dots_down",
+    "@keyframes dots_up",
+    "body",
+    "#container",
+    "#lyrics",
+    "#lyricstext",
+    "#credits",
+    "#creditstext",
+    "#ui",
+    "#uileft",
+    "#uimiddle",
+    "#uiright",
+    "#logo",
+    "#dotsleft",
+    "#dotsright",
+    "#volume",
+    "#buffer"
+  ],
+  "imports": [],
+  "called_by": [
+    "portal2/index.html"
+  ],
+  "calls_out_to": [
+    "CSS radial-gradient",
+    "CSS linear-gradient",
+    "CSS animations",
+    "legacy vendor-prefixed CSS"
+  ],
+  "invariants": [
+    "The #container size and child positioning are fixed to the Portal 2 composition declared in portal2/index.html.",
+    "Vendor-prefixed keyframes and gradients are kept for older browser compatibility with the original era of the page.",
+    "The #buffer overlay must keep pointer-events disabled so it never blocks the volume input."
+  ],
+  "gotchas": [
+    "The page is designed for a 1080x600 fixed panel, not responsive browser widths.",
+    "The old IE gradient filter is intentionally present alongside modern gradients."
+  ]
+}
