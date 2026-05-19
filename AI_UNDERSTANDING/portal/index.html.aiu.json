@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal/index.html",
-  "sha1": "5659ab49516acd3ec59e779b4b57ba74a6253545",
+  "sha1": "130e3ba3b19e31129baeed496fd2832005aa53ec",
   "purpose": "XHTML shell for the original Portal \"Still Alive\" end credits recreation. It declares the lyric, credit, and picture containers that portal/cake.js fills at runtime, loads style.css, cakedata.js, and cake.js in that order, and now includes a fullscreen #splash overlay that gates the credits sequence behind a user click/keypress to satisfy modern autoplay policy.",
   "exports": [],
   "imports": [
@@ -18,7 +18,8 @@
   "invariants": [
     "cakedata.js must load before cake.js because cake.js reads global asciiart, credits, and lyrics.",
     "The lyrics, credits, and picture container ids are runtime API for portal/cake.js and portal/style.css.",
-    "The #splash element with id 'splash' is the autoplay-policy gate; portal/cake.js queries it on DOMContentLoaded and dismisses it on click or Space."
+    "The #splash element with id 'splash' is the autoplay-policy gate; portal/cake.js queries it on DOMContentLoaded and dismisses it on click or Space.",
+    "Declares UTF-8 via <meta http-equiv> so the browser parses cake.js (and any non-ASCII content) as UTF-8 rather than guessing Latin-1; without this the page renders 'Â' artifacts wherever the JS source contained literal NBSP bytes."
   ],
   "gotchas": [
     "The page uses XHTML 1.0 Strict-era markup and no viewport meta; layout behavior is intentionally old and fixed-size.",

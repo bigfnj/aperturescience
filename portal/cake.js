@@ -99,7 +99,7 @@ var cake = {
             if (letter == "newline") {
                 line.appendChild(document.createElement("br"));
             } else {
-                if (letter == " ") letter = " ";
+                if (letter == " ") letter = "\u00A0";
                 line.appendChild(document.createTextNode(letter));
             }
         }
@@ -167,7 +167,7 @@ var cake = {
             for (const curline of curart) {
                 const node = document.createElement("div");
                 // substitute regular spaces with U+00A0 NBSP so ASCII art whitespace doesn't collapse
-                node.textContent = curline.replace(/ /g, ' ');
+                node.textContent = curline.replace(/ /g, '\u00A0');
                 picture.appendChild(node);
             }
         }

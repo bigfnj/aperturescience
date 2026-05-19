@@ -141,7 +141,7 @@ var cake = {
             }
             else
             {
-                if (letter==" ") letter=" ";
+                if (letter==" ") letter="\u00A0";
                 line.appendChild(document.createTextNode(letter));
             }
         }
