@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal2/index.html",
-  "sha1": "7a7553e2ab16e9ed5c3f970b2cceeb9def46446d",
+  "sha1": "07bda022e451eca5a4af1964385fd445fc55cb0d",
   "purpose": "Modern Portal 2 \"Want You Gone\" credits page. It loads the Portal 2 data and controller, defines the lyric and credit regions, adds animated Aperture UI chrome, embeds the Aperture logo SVG, exposes a volume slider, and includes a fullscreen #splash overlay that gates the credits sequence behind user click/keypress to satisfy modern autoplay policy.",
   "exports": [],
   "imports": [
