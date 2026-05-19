@@ -62,8 +62,8 @@ var cake = {
     },
     setVolume: function(vol)
     {
-        vol = ~~vol / 100;
-        if (cake.player && cake.player.volume !== void(0) && vol >= 0 && vol <= 1) {
+        vol = Number(vol) / 100;
+        if (cake.player && cake.player.volume !== undefined && vol >= 0 && vol <= 1) {
             cake.player.volume = vol;
         }
     },
@@ -163,24 +163,22 @@ var cake = {
             {
                 letterdelay = delay / (text.length + 1);
             }
-            var timeout;
             for (var x = 0; x < text.length; x++)
             {
-                timeout = setTimeout(cake.processLetter, letterdelay * x, 'lyrics', index, text.charAt(x));
+                setTimeout(cake.processLetter, letterdelay * x, 'lyrics', index, text.charAt(x));
             }
             if (curlyric["nonewline"] == 0)
             {
-                timeout = setTimeout(cake.processLetter, letterdelay * text.length, 'lyrics', index, 'newline');
+                setTimeout(cake.processLetter, letterdelay * text.length, 'lyrics', index, 'newline');
             }
         }
     },
     processLyricLines: function()
     {
         var delay = 0;
-        var timeout;
         for (var index = 0; index < lyrics.length; index++)
         {
-            timeout = setTimeout(cake.processLyricLine, delay, index);
+            setTimeout(cake.processLyricLine, delay, index);
             delay += lyrics[index]["delay"] * cake.delayMultiplier;
         }
     },

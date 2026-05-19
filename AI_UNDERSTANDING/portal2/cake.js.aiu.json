@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal2/cake.js",
-  "sha1": "45ada039d0ae16ccedf306915ce4e87f43c180b6",
+  "sha1": "5ba142a39599eb281cb3027cda34e45706417ef4",
   "purpose": "Runtime controller for the modern Portal 2 credits animation. It waits for DOMContentLoaded, kicks off audio preloading, attaches splash dismissal handlers, and runs cake.init only when both the user has dismissed the splash and the audio canplaythrough event has fired. It types lyrics and credits, handles cursor blinking, computes credit pacing, and exposes volume control.",
   "exports": [
     "cake"

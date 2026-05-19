@@ -79,13 +79,14 @@ Each top-level commit is one checkbox; sub-tasks track per-file work.
 - [x] Update 1 AIU sidecar (sha1, drop navigator/RegExp/parseFloat from calls_out_to, simplify IE-fallback gotcha)
 - [ ] Commit 3.3 to git (pending — headless verified)
 
-### Commit 3.4 — Modernize idioms (`~~vol`, `void(0)`, `var`, `for...in`)
-- [ ] `portal2/cake.js`: `~~vol / 100` → `Number(vol) / 100`
-- [ ] `portal2/cake.js`: `cake.player.volume !== void(0)` → `!== undefined`
-- [ ] All three `cake.js`: `var` → `const`/`let` where safe
-- [ ] `portal/cake.js`: `for (var line in curart)` → `for (const line of curart)` (note: `curart` is array)
-- [ ] Update 3 AIU sidecars
-- [ ] Commit 3.4 to git
+### Commit 3.4 — Modernize idioms (targeted)
+- [x] `portal2/cake.js`: `~~vol / 100` → `Number(vol) / 100`
+- [x] `portal2/cake.js`: `cake.player.volume !== void(0)` → `!== undefined`
+- [x] `portal/cake.js`: `for (var line in curart)` → `for (const curline of curart)` (curart is an array; for-of gives values directly)
+- [x] All three: drop the dead `var timeout` declarations and bare `timeout =` assignments (vestigial; never read)
+- [ ] ~~Wholesale `var` → `let`/`const` sweep~~ — deferred. Strict mode + IIFE already plug the only behavioral risks of `var`; the broader rewrite is cosmetic for a ~250-line file.
+- [x] Update 3 AIU sidecars
+- [ ] Commit 3.4 to git (pending — headless verified)
 
 ---
 

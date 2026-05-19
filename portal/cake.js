@@ -140,20 +140,18 @@ var cake = {
             if (text.length > 0) {
                 letterdelay = delay / (text.length + 1);
             }
-            var timeout;
             for (var x = 0; x < text.length; x++) {
-                timeout = setTimeout(cake.processLetter, letterdelay * x, 'lyrics', index, text.charAt(x));
+                setTimeout(cake.processLetter, letterdelay * x, 'lyrics', index, text.charAt(x));
             }
             if (curlyric['nonewline'] == 0) {
-                timeout = setTimeout(cake.processLetter, letterdelay * text.length, 'lyrics', index, 'newline');
+                setTimeout(cake.processLetter, letterdelay * text.length, 'lyrics', index, 'newline');
             }
         }
     },
     processLyricLines: function() {
         var delay = 0;
-        var timeout;
         for (var index = 0; index < lyrics.length; index++) {
-            timeout = setTimeout(cake.processLyricLine, delay, index);
+            setTimeout(cake.processLyricLine, delay, index);
             delay += lyrics[index]['delay'] * cake.delayMultiplier;
         }
     },
@@ -166,10 +164,10 @@ var cake = {
         picture.textContent = '';
         var curart = asciiart['' + id + ''];
         if (curart) {
-            for (var line in curart) {
-                var node = document.createElement("div");
+            for (const curline of curart) {
+                const node = document.createElement("div");
                 // substitute regular spaces with U+00A0 NBSP so ASCII art whitespace doesn't collapse
-                node.textContent = curart[line].replace(/ /g, ' ');
+                node.textContent = curline.replace(/ /g, ' ');
                 picture.appendChild(node);
             }
         }
