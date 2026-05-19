@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal2/portal1style/cake.js",
-  "sha1": "dfd17d17c44bdb91dd3d4c3d59a5ce30321c5872",
+  "sha1": "616cbe91b27806360d5191ebcf86c094c9384227",
   "purpose": "Legacy Portal 1-style runtime controller adapted for Portal 2 data. It waits for DOMContentLoaded, attaches splash dismissal handlers, then on user click/Space draws text borders, starts Want You Gone audio, types lyrics and credits, and blinks cursors.",
   "exports": [
     "cake"

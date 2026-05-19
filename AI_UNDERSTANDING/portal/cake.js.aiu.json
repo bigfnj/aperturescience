@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal/cake.js",
-  "sha1": "f5e079bbaaee43ff3a4d4a13204e3a8cdde2e8fc",
+  "sha1": "dd2d05a3f4f978e12b73a65c11b3ed5d54c61bea",
   "purpose": "Runtime controller for the Portal 1 credits animation. It waits for DOMContentLoaded, attaches splash dismissal handlers, then on user click/Space starts audio, draws text borders, types lyric and credit data character by character, blinks cursors, and swaps ASCII art according to lyric metadata.",
   "exports": [
     "cake"
@@ -31,7 +31,7 @@
     "cake.init must run after the HTML containers exist; it caches lyric and credit containers before scheduling any line rendering.",
     "cake.delayMultiplier is the shared conversion from cakedata delay seconds to milliseconds.",
     "processLyricLine and processCreditLine assume stable global lyrics and credits arrays loaded before this file.",
-    "processLetter escapes <, >, and spaces before appending via innerHTML so ASCII layout survives browser parsing.",
+    "processLetter and setPicture use document.createTextNode (no innerHTML), so HTML special chars need no escaping; a regex substitutes regular space (U+0020) with U+00A0 NBSP so adjacent spaces survive default white-space collapsing.",
     "cake.init runs only after the user dismisses the #splash overlay (click or Space) on DOMContentLoaded; this satisfies modern autoplay policy and keeps lyric typing in sync with audio."
   ],
   "gotchas": [

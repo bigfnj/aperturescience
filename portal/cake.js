@@ -99,13 +99,8 @@ var cake = {
             if (letter == "newline") {
                 line.appendChild(document.createElement("br"));
             } else {
-                if (letter == "<")
-                    letter = "&lt;";
-                if (letter == ">")
-                    letter = "&gt;";
-                if (letter == " ")
-                    letter = "&nbsp;";
-                line.innerHTML = line.innerHTML + letter;
+                if (letter == " ") letter = " ";
+                line.appendChild(document.createTextNode(letter));
             }
         }
     },
@@ -168,16 +163,13 @@ var cake = {
     },
     setPicture: function(id) {
         var picture = document.getElementById("picturetext");
-        picture.innerHTML = '';
+        picture.textContent = '';
         var curart = asciiart['' + id + ''];
         if (curart) {
             for (var line in curart) {
                 var node = document.createElement("div");
-                var curline = curart[line];
-                curline = curline.replace(/</g, "&lt;");
-                curline = curline.replace(/>/g, "&gt;");
-                curline = curline.replace(/ /g, "&nbsp;");
-                node.innerHTML = curline;
+                // substitute regular spaces with U+00A0 NBSP so ASCII art whitespace doesn't collapse
+                node.textContent = curart[line].replace(/ /g, ' ');
                 picture.appendChild(node);
             }
         }

@@ -141,14 +141,8 @@ var cake = {
             }
             else
             {
-                if (letter=="<")
-                    letter="&lt;";
-                if (letter==">")
-                    letter="&gt;";
-                if (letter==" ")
-                    letter="&nbsp;";
-                line.innerHTML=line.innerHTML+letter;
-                //line.appendChild(document.createTextNode(letter));        // old way, slow in konq
+                if (letter==" ") letter=" ";
+                line.appendChild(document.createTextNode(letter));
             }
         }
     },

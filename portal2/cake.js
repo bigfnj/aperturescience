@@ -128,13 +128,8 @@ var cake = {
             }
             else
             {
-                if (letter == "<")
-                    letter = "&lt;";
-                if (letter == ">")
-                    letter = "&gt;";
-                if (letter == " ")
-                    letter = "&nbsp;";
-                line.innerHTML = line.innerHTML + letter;
+                if (letter == " ") letter = " ";
+                line.appendChild(document.createTextNode(letter));
             }
         }
     },

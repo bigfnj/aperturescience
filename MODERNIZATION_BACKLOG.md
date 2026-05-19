@@ -65,12 +65,12 @@ Each top-level commit is one checkbox; sub-tasks track per-file work.
 - [ ] Commit 3.1 to git (pending — headless verification passed, all 3 variants still type lyrics with 23-28 unique chars and zero console errors under strict mode)
 
 ### Commit 3.2 — `appendChild(createTextNode())` instead of `innerHTML +=`
-- [ ] Rewrite `processLetter` in `portal/cake.js` — text node approach
-- [ ] Same in `portal2/cake.js`
-- [ ] Same in `portal2/portal1style/cake.js`
-- [ ] Drop entity-escaping code in `setPicture` (`portal/cake.js`) — replace with text nodes too
-- [ ] Update 3 AIU sidecars
-- [ ] Commit 3.2 to git
+- [x] Rewrite `processLetter` in `portal/cake.js` — text node approach
+- [x] Same in `portal2/cake.js`
+- [x] Same in `portal2/portal1style/cake.js`
+- [x] Drop entity-escaping code in `setPicture` (`portal/cake.js`) — uses textContent now, with regex `/ /g → ' '` to preserve ASCII art whitespace
+- [x] Update 3 AIU sidecars
+- [ ] Commit 3.2 to git (pending — headless verified, 26-29 unique chars typed in 7s, no errors)
 
 ### Commit 3.3 — Delete IE compatibility code
 - [ ] Remove `checkForIE()` function from `portal2/cake.js`
