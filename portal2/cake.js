@@ -20,6 +20,10 @@ var cake = {
     firstLyricsIndex: 0,
     lastCreditsIndex: 0,
 
+    naturalCreditsDelay: 33,
+    useNaturalDelay: false,
+    customCreditsLoop: false,
+
     userReady: false,
     audioReady: false,
 
@@ -250,7 +254,11 @@ var cake = {
         {
             totalchars += credits[index].length + 1;
         }
-        cake.creditsDelay = cake.creditsMaxTime * cake.delayMultiplier / totalchars;
+        if (cake.useNaturalDelay) {
+            cake.creditsDelay = cake.naturalCreditsDelay;
+        } else {
+            cake.creditsDelay = cake.creditsMaxTime * cake.delayMultiplier / totalchars;
+        }
 
         var delay = cake.creditsStartTime * cake.delayMultiplier;
         for (var index = 0; index < credits.length; index++)
@@ -258,15 +266,43 @@ var cake = {
             setTimeout(cake.processCreditLine, delay, index);
             delay += credits[index].length * cake.creditsDelay;
         }
+        if (cake.customCreditsLoop) {
+            setTimeout(cake.restartCustomCredits, delay + 1000);
+        }
+    },
+    restartCustomCredits: function()
+    {
+        var blinker = cake.creditsBlinker;
+        cake.creditsdiv.innerHTML = '';
+        cake.lastCreditsIndex = 0;
+        cake.initCredits();
+        if (blinker) cake.creditsdiv.appendChild(blinker);
+        cake.processCreditLines();
     }
 };
 
 window.cake = cake;
 
+function applyCustomCredits() {
+    var customCredits = '';
+    var creditsMode = 'loop';
+    try {
+        customCredits = localStorage.getItem('aperture.customCredits') || '';
+        creditsMode = localStorage.getItem('aperture.creditsMode') || 'loop';
+    } catch (e) {}
+    if (customCredits.trim().length === 0) return;
+    window.credits = customCredits.split('\n');
+    if (customCredits.length < 2500) {
+        cake.useNaturalDelay = true;
+        cake.customCreditsLoop = (creditsMode === 'loop');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     var params = new URLSearchParams(window.location.search);
     cake.autoloop = params.get('autoloop') === '1';
     cake.random = params.get('random') === '1';
+    applyCustomCredits();
     cake.initMusicPlayer();
     var splash = document.getElementById('splash');
     var ready = false;

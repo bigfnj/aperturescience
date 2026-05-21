@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "path": "launcher/launcher.js",
-  "sha1": "05f1587ba11df020e53e4d15fca3d65300b88787",
-  "purpose": "Phase 6 launcher controller. The IIFE runs immediately at script-eval time (script lives at the end of body, so all buttons are already parsed). If ?random=1 is present in the URL, it picks a uniform-random variant (with ?autoloop=1&random=1 baked in) and navigates with location.replace so the launcher doesn't pollute history. Otherwise it wires click handlers on every .chamber button (intercepting the RANDOM sentinel) and a document-level keydown handler that matches the button's data-key attribute. Wrapped in an IIFE with 'use strict'.",
+  "sha1": "ec3ee417d4a9e807580bc433a24c8e1c19470d6e",
+  "purpose": "Phase 6 launcher controller. The IIFE runs immediately at script-eval time (script lives at the end of body, so all buttons are already parsed). If ?random=1 is present in the URL, it picks a uniform-random variant (with ?autoloop=1&random=1 baked in) and navigates with location.replace so the launcher doesn't pollute history. Otherwise it wires click handlers on every .chamber button (intercepting the RANDOM sentinel), a document-level keydown handler that matches the button's data-key attribute (skipping when focus is in a textarea/input), and the Enrichment Center Credits UI (initEnrichmentCredits): hydrates the textarea + MODE radios from localStorage.aperture.customCredits / aperture.creditsMode, autosaves on input, detects paste truncation via inputType, reads .txt files via FileReader and trims to 20,000 chars, shows the truncation notice for 5s, clears via [ CLEAR ], and toggles the MODE fieldset visibility at the 2,500-char STRETCH threshold.",
   "exports": [],
   "imports": [
     "DOM globals",
@@ -15,22 +15,32 @@
     "document.querySelectorAll",
     "document.querySelector",
     "document.addEventListener",
+    "document.getElementById",
     "URLSearchParams",
     "Math.random",
     "Math.floor",
     "Location.assign",
-    "Location.replace"
+    "Location.replace",
+    "localStorage.getItem / setItem / removeItem",
+    "FileReader.readAsText"
   ],
   "invariants": [
     "VARIANTS array holds the three navigable variant URLs with ?autoloop=1&random=1 already appended; pickRandom selects one with uniform probability.",
     "The 'RANDOM' sentinel on a button's data-target triggers pickRandom; any other value is treated as a literal URL and passed to location.assign.",
     "?random=1 on the launcher itself triggers location.replace (not assign) so the launcher entry is overwritten in history, leaving Back navigation on the credits page to return to the previous external referrer rather than bouncing back into the random picker.",
-    "Hotkey matching is case-insensitive (key is lowercased) and matched via [data-key] attribute selector; the canonical hotkeys are '1', '2', '3', 'r'."
+    "Hotkey matching is case-insensitive (key is lowercased) and matched via [data-key] attribute selector; the canonical hotkeys are '1', '2', '3', 'r'. The keydown handler bails out when focus is in a TEXTAREA or INPUT so typing into the Enrichment Credits textarea cannot trigger a chamber jump.",
+    "localStorage keys are 'aperture.customCredits' (string) and 'aperture.creditsMode' (loop|stop). Both are read by every variant cake.js via applyCustomCredits during DOMContentLoaded.",
+    "MAX_CHARS=20000 is enforced both via <textarea maxlength> (silent browser cap) and via FileReader slice; both paths show the truncation notice for 5 seconds.",
+    "LOOP_THRESHOLD=2500 — under this length the MODE fieldset is visible and the variant uses naturalCreditsDelay; at-or-over this length the fieldset is hidden and the variant falls through to the STRETCH math regardless of the saved mode."
   ],
   "gotchas": [
     "The keydown handler calls preventDefault when the key matches a button. Hotkeys that collide with browser shortcuts (none of 1/2/3/R do by default) would suppress those shortcuts on this page only.",
     "If the launcher is hit at random=1 with no JS, the random redirect never happens and the picker is shown — graceful degradation but no automated fallback.",
     "VARIANTS URLs are relative (../portal/, ../portal2/, ../portal2/portal1style/); they assume launcher/ sits as a sibling of those variant folders. Move the launcher and these break.",
-    "The script intentionally does NOT wait for DOMContentLoaded; it relies on the <script> tag being at end of <body> so .chamber buttons are already in the DOM. Moving the tag into <head> without defer breaks button binding."
+    "The script intentionally does NOT wait for DOMContentLoaded; it relies on the <script> tag being at end of <body> so .chamber buttons are already in the DOM. Moving the tag into <head> without defer breaks button binding.",
+    "All localStorage access goes through safeGet/safeSet/safeRemove which swallow exceptions — Safari private mode and storage-quota errors degrade gracefully (custom credits don't persist but UI still functions).",
+    "Paste-truncation detection uses event.inputType === 'insertFromPaste' + textarea.value.length === MAX_CHARS; this is best-effort and won't fire on legacy browsers that don't expose inputType on InputEvent.",
+    "picker.value = '' is called after each load so re-selecting the same file fires a change event again.",
+    "CREDITS_KEY / MODE_KEY / MAX_CHARS / LOOP_THRESHOLD must be declared above the if/else that calls initEnrichmentCredits — var hoists the binding but not the value, so calling initEnrichmentCredits before the assignments runs refreshMeta with `len < undefined` (false), which silently hides the MODE fieldset on first paint and reads localStorage with an undefined key."
   ]
 }

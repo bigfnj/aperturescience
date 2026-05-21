@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "path": "portal2/cake.js",
-  "sha1": "f681c6890940007545556219182e74b9b7747d0b",
-  "purpose": "Runtime controller for the modern Portal 2 credits animation. It waits for DOMContentLoaded, reads ?autoloop=1 / ?random=1 URL params, kicks off audio preloading, attaches splash dismissal handlers (with 5s auto-dismiss under autoloop), and runs cake.init only when both userReady (splash dismissal) and audioReady (canplaythrough) are true. It types lyrics and credits, handles cursor blinking, computes credit pacing, and exposes volume control. When autoloop is active, the audio 'ended' event triggers an 8s pause then reload (or navigation to ../launcher/?random=1 in random mode).",
+  "sha1": "1dcc6532b88d492e8a2532512fbfc68560239611",
+  "purpose": "Runtime controller for the modern Portal 2 credits animation. It waits for DOMContentLoaded, reads ?autoloop=1 / ?random=1 URL params, applies the Enrichment Center Credits override (reads localStorage.aperture.customCredits / aperture.creditsMode and rewrites window.credits before init), kicks off audio preloading, attaches splash dismissal handlers (with 5s auto-dismiss under autoloop), and runs cake.init only when both userReady (splash dismissal) and audioReady (canplaythrough) are true. It types lyrics and credits, handles cursor blinking, computes credit pacing, and exposes volume control. When custom credits are present and under 2,500 chars, credits type at the natural 33 ms/char pace; in loop mode the credit column wipes and re-types continuously. When autoloop is active, the audio 'ended' event triggers an 8s pause then reload (or navigation to ../launcher/?random=1 in random mode).",
   "exports": [
     "cake"
   ],
@@ -19,13 +19,17 @@
     "console.error",
     "document.getElementById",
     "document.createElement",
+    "document.createTextNode",
     "Element.classList.add",
+    "Element.appendChild",
+    "Element.removeChild",
     "HTMLAudioElement.addEventListener",
     "HTMLAudioElement.play",
     "URLSearchParams",
     "Location.assign",
     "Location.reload",
-    "setTimeout"
+    "setTimeout",
+    "localStorage.getItem"
   ],
   "invariants": [
     "initMusicPlayer is invoked from DOMContentLoaded and sets cake.audioReady = true via canplaythrough. cake.init does not run until both cake.userReady (set by splash dismissal) and cake.audioReady are true.",
@@ -33,7 +37,10 @@
     "processLyricLine and processCreditLine assume global lyrics and credits arrays are loaded first.",
     "creditsMaxTime and creditsStartTime determine the full credit scroll pacing from total character count.",
     "tryStart is the single dispatch point that decides whether to call cake.init; both userReady and audioReady must be true.",
-    "?autoloop=1 sets cake.autoloop and arms the 5s splash auto-dismiss plus the audio 'ended' listener; ?random=1 sets cake.random and switches the post-credits transition from location.reload() to location.assign('../launcher/?random=1'). The local 'ready' flag guards userReady() against double-invocation."
+    "?autoloop=1 sets cake.autoloop and arms the 5s splash auto-dismiss plus the audio 'ended' listener; ?random=1 sets cake.random and switches the post-credits transition from location.reload() to location.assign('../launcher/?random=1'). The local 'ready' flag guards userReady() against double-invocation.",
+    "applyCustomCredits runs inside DOMContentLoaded before initMusicPlayer; it overwrites window.credits when localStorage.aperture.customCredits is non-empty after trim, and arms cake.useNaturalDelay + cake.customCreditsLoop only when length < 2500.",
+    "cake.naturalCreditsDelay = 33 (ms/char) is the Portal 2 natural pace; processCreditLines uses it when cake.useNaturalDelay is true and otherwise falls through to the STRETCH formula creditsMaxTime * 1000 / totalchars.",
+    "cake.restartCustomCredits is invoked via setTimeout from processCreditLines only when cake.customCreditsLoop is true; it wipes the credits column (preserving the blinker DOM node + its blink timer), resets lastCreditsIndex, re-runs initCredits, and re-calls processCreditLines."
   ],
   "gotchas": [
     "If canplaythrough never fires, cake.audioReady stays false and the splash click does not start playback. The 'audio unavailable' fallback branch sets audioReady = true so the page at least dismisses past the splash, but no music plays.",
@@ -41,7 +48,9 @@
     "setTimeout uses the 3-argument form (callback, delay, ...args) to capture loop-iteration values at schedule time so var-scoped loop variables do not produce the closure trap.",
     "The DOMContentLoaded handler assumes index.html provides an element with id 'splash'; without it splash.addEventListener throws and the credits never start.",
     "Autoloop 5s auto-dismiss can fire before canplaythrough; userReady flips but tryStart waits for audioReady. If audio never loads, the page sits silently past the splash.",
-    "On autoloop cycle 2+, location.reload() loses the original user gesture; WebView2/browser autoplay policy may block playback (see PHASE6_DESKTOP_APP_PLAN.md risk section)."
+    "On autoloop cycle 2+, location.reload() loses the original user gesture; WebView2/browser autoplay policy may block playback (see PHASE6_DESKTOP_APP_PLAN.md risk section).",
+    "applyCustomCredits wraps localStorage access in try/catch — Safari private mode and storage-quota errors silently skip the override; the variant then plays the original Portal credits.",
+    "restartCustomCredits depends on cake.creditsBlinker being a long-lived DOM node whose blink setTimeout chain captures the same reference. The wipe sets creditsdiv.innerHTML='' which detaches the blinker, then appendChild re-attaches it — the in-flight blink timer survives because it holds the captured reference."
   ],
   "key_functions": [
     {
@@ -63,6 +72,18 @@
     {
       "name": "processCreditLine",
       "summary": "Keeps only a sliding window of visible credits and types each credit line at the computed pace."
+    },
+    {
+      "name": "processCreditLines",
+      "summary": "Computes per-character delay (natural 33ms when useNaturalDelay, otherwise STRETCH math), schedules every credit line for typing, and arms restartCustomCredits when customCreditsLoop is set."
+    },
+    {
+      "name": "restartCustomCredits",
+      "summary": "Custom-credits loop hook: wipes credit-line divs (keeping the blinker), resets lastCreditsIndex, re-runs initCredits, re-appends the blinker, and calls processCreditLines."
+    },
+    {
+      "name": "applyCustomCredits",
+      "summary": "Module-scope helper run in DOMContentLoaded; reads localStorage.aperture.customCredits / aperture.creditsMode, replaces window.credits, and arms useNaturalDelay + customCreditsLoop when under 2,500 chars."
     }
   ]
 }

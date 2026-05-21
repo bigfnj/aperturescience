@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "path": "launcher/launcher.css",
-  "sha1": "6a3c21835f8ead4b010c251fae50234709d4f2d2",
-  "purpose": "Stylesheet for the Phase 6 launcher page. Establishes the yellow-on-black Aperture aesthetic, centers the picker in the viewport, lays out the 4 chamber buttons in a 2x2 grid (collapses to a single column under 40em), applies hover/focus inversion (yellow background, black foreground), and animates the blinking footer cursor. Respects prefers-reduced-motion.",
+  "sha1": "58f42bdd2b22e3d783cb9e425ee2756d776a70e6",
+  "purpose": "Stylesheet for the Phase 6 launcher page. Establishes the yellow-on-black Aperture aesthetic, centers the picker in the viewport, lays out the 4 chamber buttons in a 2x2 grid (collapses to a single column under 40em), applies hover/focus inversion, and animates the blinking footer cursor. Also styles the Enrichment Center Credits panel: bordered section header + help text, monospace textarea with focus border, char-counter and #f80 truncation notice meta row, MODE fieldset with custom-accent radios, and a .hidden utility used by launcher.js to toggle the MODE radios at the 2,500-char STRETCH threshold. Respects prefers-reduced-motion.",
   "exports": [],
   "imports": [],
   "called_by": [
@@ -17,11 +17,13 @@
     "Background #000 / foreground #ff0 (pure yellow) matches the splash overlay aesthetic in portal/, portal2/, and portal2/portal1style/.",
     "Hover/focus state inverts to background #ff0 / foreground #000; .subtitle also re-tints to #330 so it remains legible against the yellow.",
     "font-family: monospace, 12pt body — matches the credits typography in the variants for visual continuity.",
-    "#cursor uses ::before { content: '_' } so the blinking character is CSS-driven and can be styled without HTML changes."
+    "#cursor uses ::before { content: '_' } so the blinking character is CSS-driven and can be styled without HTML changes.",
+    ".hidden { display: none !important } is the launcher.js toggle contract for the MODE fieldset and the truncation notice."
   ],
   "gotchas": [
     "Grid collapses to a single column at 40em viewport width; the header letter-spacing is also reduced to keep it on one line on narrow viewports.",
     "Without prefers-reduced-motion the cursor blinks via steps(1) keyframes (hard on/off, not smooth fade) and buttons have an 80ms color transition; both are disabled when prefers-reduced-motion is set.",
-    "color #cc0 (sub-yellow) is used for the subheader, subtitles, and footer text to provide hierarchy against the pure #ff0 button labels."
+    "color #cc0 (sub-yellow) is used for the subheader, subtitles, footer text, and char-counter; #f80 (amber) is reserved for the truncation notice so it pops against the yellow palette.",
+    "Radio buttons use accent-color #ff0 which Chrome/Firefox honor but older browsers may ignore — they will still function, just with default accent color."
   ]
 }

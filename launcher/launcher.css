@@ -85,6 +85,128 @@ body {
     opacity: 0.7;
 }
 
+.enrichment {
+    border: 1px solid #ff0;
+    padding: 1em 1.2em 1.2em;
+    margin: 0 0 2em;
+    text-align: left;
+}
+
+.section-header {
+    font-size: 1em;
+    letter-spacing: 0.2em;
+    color: #ff0;
+    margin: 0 0 0.3em;
+    font-weight: normal;
+    text-align: center;
+}
+
+.section-help {
+    font-size: 0.8em;
+    color: #cc0;
+    letter-spacing: 0.1em;
+    margin: 0 0 1em;
+    text-align: center;
+}
+
+.enrichment-controls {
+    display: flex;
+    gap: 0.6em;
+    justify-content: center;
+    margin-bottom: 0.6em;
+    flex-wrap: wrap;
+}
+
+.ec-button {
+    background: #000;
+    color: #ff0;
+    border: 1px solid #ff0;
+    font-family: monospace;
+    font-size: 0.9em;
+    padding: 0.4em 0.9em;
+    cursor: pointer;
+    letter-spacing: 0.15em;
+    transition: background 80ms linear, color 80ms linear;
+}
+
+.ec-button:hover,
+.ec-button:focus {
+    background: #ff0;
+    color: #000;
+    outline: none;
+}
+
+.enrichment-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background: #000;
+    color: #ff0;
+    border: 1px solid #ff0;
+    font-family: monospace;
+    font-size: 0.9em;
+    padding: 0.6em;
+    resize: vertical;
+    min-height: 6em;
+}
+
+.enrichment-textarea:focus {
+    outline: none;
+    border-color: #fff;
+}
+
+.enrichment-textarea::placeholder {
+    color: #770;
+}
+
+.enrichment-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.4em;
+    font-size: 0.8em;
+    color: #cc0;
+    letter-spacing: 0.1em;
+}
+
+.char-count {
+    color: #cc0;
+}
+
+.trunc-notice {
+    color: #f80;
+}
+
+.enrichment-mode {
+    border: none;
+    padding: 0.6em 0 0;
+    margin: 0.6em 0 0;
+    display: flex;
+    gap: 1.2em;
+    justify-content: center;
+    font-size: 0.85em;
+    letter-spacing: 0.1em;
+}
+
+.enrichment-mode legend {
+    color: #cc0;
+    letter-spacing: 0.2em;
+    padding: 0 0.6em;
+}
+
+.enrichment-mode label {
+    cursor: pointer;
+}
+
+.enrichment-mode input[type="radio"] {
+    accent-color: #ff0;
+    margin-right: 0.4em;
+    vertical-align: middle;
+}
+
+.hidden {
+    display: none !important;
+}
+
 .footer {
     color: #cc0;
     letter-spacing: 0.15em;

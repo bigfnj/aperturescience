@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "path": "launcher/index.html",
-  "sha1": "ce5083f5cea3d73ec655a62efdcd872411f847ce",
-  "purpose": "HTML5 shell for the Phase 6 launcher page. Renders a yellow-on-black Aperture-themed 4-button picker (TEST CHAMBER 01 / 02 / 02 LEGACY / RANDOMIZE PROTOCOL) with subtitles and hotkey hints. Each button carries a data-target attribute consumed by launcher.js for navigation. Loads launcher.css and launcher.js (script at end of body).",
+  "sha1": "1d1ec9b1032c3fcfdb7722462f35050ebb2b14c4",
+  "purpose": "HTML5 shell for the Phase 6 launcher page. Renders a yellow-on-black Aperture-themed 4-button picker (TEST CHAMBER 01 / 02 / 02 LEGACY / RANDOMIZE PROTOCOL) with subtitles and hotkey hints plus the ENRICHMENT CENTER CREDITS panel (LOAD .TXT/CLEAR buttons, autosaving textarea with maxlength=20000, character counter, truncation notice, LOOP/STOP MODE radios). Each chamber button carries a data-target attribute consumed by launcher.js for navigation; the enrichment elements have stable ids consumed by launcher.js for localStorage round-tripping. Loads launcher.css and launcher.js (script at end of body).",
   "exports": [],
   "imports": [
     "launcher/launcher.css",
@@ -22,11 +22,14 @@
     "Each .chamber button must carry data-target (relative URL or the sentinel 'RANDOM') and data-key (lowercase single-character hotkey). launcher.js queries by both attributes.",
     "Variant targets must include ?autoloop=1 so the destination cake.js arms the 5s splash auto-dismiss and the audio.ended transition.",
     "Page is reachable as a sibling of portal/, portal2/, portal2/portal1style/; data-target relative URLs assume this layout.",
-    "The four hotkeys are 1, 2, 3, r — kept in sync with the [N] hint spans inside each button label."
+    "The four hotkeys are 1, 2, 3, r — kept in sync with the [N] hint spans inside each button label.",
+    "Enrichment Center Credits element ids (#customCredits, #charCount, #truncNotice, #modeFieldset, #loadTxt, #txtPicker, #clearCredits, input[name='creditsMode']) are the contract surface with launcher.js — renames require launcher.js update.",
+    "The textarea has maxlength=20000 so the browser silently caps input; launcher.js detects the cap on paste via inputType+length and FileReader trims explicitly."
   ],
   "gotchas": [
     "RANDOMIZE PROTOCOL uses data-target=\"RANDOM\" as a sentinel string, not a URL — launcher.js intercepts this value and picks a uniform-random variant URL.",
     "There is no <noscript> fallback; if launcher.js fails to load the buttons do nothing.",
-    "The #cursor blinking span is content-driven by the launcher.css ::before pseudo-element; replacing it with a different cursor character requires touching CSS, not HTML."
+    "The #cursor blinking span is content-driven by the launcher.css ::before pseudo-element; replacing it with a different cursor character requires touching CSS, not HTML.",
+    "MODE radios are inside <fieldset id='modeFieldset'> which launcher.js hides by toggling .hidden when textarea length reaches the 2,500-char STRETCH threshold; the radios still exist in the DOM so their value can still be read."
   ]
 }

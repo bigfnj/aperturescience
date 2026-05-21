@@ -32,6 +32,25 @@
             <span class="hotkey">[R]</span>
         </button>
     </div>
+    <section class="enrichment" aria-labelledby="enrichmentHeader">
+        <h2 id="enrichmentHeader" class="section-header">ENRICHMENT CENTER CREDITS</h2>
+        <p class="section-help">USER-SUPPLIED TEXT REPLACES THE NAMES SCROLL DURING THE SONG. LEAVE BLANK FOR DEFAULT.</p>
+        <div class="enrichment-controls">
+            <button id="loadTxt" type="button" class="ec-button">[ LOAD .TXT FILE ]</button>
+            <input id="txtPicker" type="file" accept=".txt,text/plain" hidden>
+            <button id="clearCredits" type="button" class="ec-button">[ CLEAR ]</button>
+        </div>
+        <textarea id="customCredits" class="enrichment-textarea" maxlength="20000" rows="6" spellcheck="false" placeholder="// ENTER CUSTOM CREDITS, ONE PER LINE"></textarea>
+        <div class="enrichment-meta">
+            <span id="charCount" class="char-count">0 / 20,000</span>
+            <span id="truncNotice" class="trunc-notice hidden">Pasted text trimmed to 20,000 characters.</span>
+        </div>
+        <fieldset id="modeFieldset" class="enrichment-mode">
+            <legend>MODE</legend>
+            <label><input type="radio" name="creditsMode" value="loop" checked> LOOP CONTINUOUSLY</label>
+            <label><input type="radio" name="creditsMode" value="stop"> STOP AFTER ONCE</label>
+        </fieldset>
+    </section>
     <p class="footer">SELECT A TEST CHAMBER TO BEGIN<span id="cursor"></span></p>
 </main>
 <script src="launcher.js"></script>
