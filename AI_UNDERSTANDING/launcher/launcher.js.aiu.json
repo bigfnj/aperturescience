@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "path": "launcher/launcher.js",
+  "sha1": "05f1587ba11df020e53e4d15fca3d65300b88787",
+  "purpose": "Phase 6 launcher controller. The IIFE runs immediately at script-eval time (script lives at the end of body, so all buttons are already parsed). If ?random=1 is present in the URL, it picks a uniform-random variant (with ?autoloop=1&random=1 baked in) and navigates with location.replace so the launcher doesn't pollute history. Otherwise it wires click handlers on every .chamber button (intercepting the RANDOM sentinel) and a document-level keydown handler that matches the button's data-key attribute. Wrapped in an IIFE with 'use strict'.",
+  "exports": [],
+  "imports": [
+    "DOM globals",
+    "URLSearchParams"
+  ],
+  "called_by": [
+    "launcher/index.html"
+  ],
+  "calls_out_to": [
+    "document.querySelectorAll",
+    "document.querySelector",
+    "document.addEventListener",
+    "URLSearchParams",
+    "Math.random",
+    "Math.floor",
+    "Location.assign",
+    "Location.replace"
+  ],
+  "invariants": [
+    "VARIANTS array holds the three navigable variant URLs with ?autoloop=1&random=1 already appended; pickRandom selects one with uniform probability.",
+    "The 'RANDOM' sentinel on a button's data-target triggers pickRandom; any other value is treated as a literal URL and passed to location.assign.",
+    "?random=1 on the launcher itself triggers location.replace (not assign) so the launcher entry is overwritten in history, leaving Back navigation on the credits page to return to the previous external referrer rather than bouncing back into the random picker.",
+    "Hotkey matching is case-insensitive (key is lowercased) and matched via [data-key] attribute selector; the canonical hotkeys are '1', '2', '3', 'r'."
+  ],
+  "gotchas": [
+    "The keydown handler calls preventDefault when the key matches a button. Hotkeys that collide with browser shortcuts (none of 1/2/3/R do by default) would suppress those shortcuts on this page only.",
+    "If the launcher is hit at random=1 with no JS, the random redirect never happens and the picker is shown — graceful degradation but no automated fallback.",
+    "VARIANTS URLs are relative (../portal/, ../portal2/, ../portal2/portal1style/); they assume launcher/ sits as a sibling of those variant folders. Move the launcher and these break.",
+    "The script intentionally does NOT wait for DOMContentLoaded; it relies on the <script> tag being at end of <body> so .chamber buttons are already in the DOM. Moving the tag into <head> without defer breaks button binding."
+  ]
+}

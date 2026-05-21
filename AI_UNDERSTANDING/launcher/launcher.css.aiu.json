@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "path": "launcher/launcher.css",
+  "sha1": "6a3c21835f8ead4b010c251fae50234709d4f2d2",
+  "purpose": "Stylesheet for the Phase 6 launcher page. Establishes the yellow-on-black Aperture aesthetic, centers the picker in the viewport, lays out the 4 chamber buttons in a 2x2 grid (collapses to a single column under 40em), applies hover/focus inversion (yellow background, black foreground), and animates the blinking footer cursor. Respects prefers-reduced-motion.",
+  "exports": [],
+  "imports": [],
+  "called_by": [
+    "launcher/index.html"
+  ],
+  "calls_out_to": [
+    "@keyframes blink",
+    "@media (max-width: 40em) responsive collapse",
+    "@media (prefers-reduced-motion: reduce) animation disable"
+  ],
+  "invariants": [
+    "Background #000 / foreground #ff0 (pure yellow) matches the splash overlay aesthetic in portal/, portal2/, and portal2/portal1style/.",
+    "Hover/focus state inverts to background #ff0 / foreground #000; .subtitle also re-tints to #330 so it remains legible against the yellow.",
+    "font-family: monospace, 12pt body — matches the credits typography in the variants for visual continuity.",
+    "#cursor uses ::before { content: '_' } so the blinking character is CSS-driven and can be styled without HTML changes."
+  ],
+  "gotchas": [
+    "Grid collapses to a single column at 40em viewport width; the header letter-spacing is also reduced to keep it on one line on narrow viewports.",
+    "Without prefers-reduced-motion the cursor blinks via steps(1) keyframes (hard on/off, not smooth fade) and buttons have an 80ms color transition; both are disabled when prefers-reduced-motion is set.",
+    "color #cc0 (sub-yellow) is used for the subheader, subtitles, and footer text to provide hierarchy against the pure #ff0 button labels."
+  ]
+}

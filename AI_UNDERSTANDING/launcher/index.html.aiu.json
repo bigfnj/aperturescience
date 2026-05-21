@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "path": "launcher/index.html",
+  "sha1": "ce5083f5cea3d73ec655a62efdcd872411f847ce",
+  "purpose": "HTML5 shell for the Phase 6 launcher page. Renders a yellow-on-black Aperture-themed 4-button picker (TEST CHAMBER 01 / 02 / 02 LEGACY / RANDOMIZE PROTOCOL) with subtitles and hotkey hints. Each button carries a data-target attribute consumed by launcher.js for navigation. Loads launcher.css and launcher.js (script at end of body).",
+  "exports": [],
+  "imports": [
+    "launcher/launcher.css",
+    "launcher/launcher.js"
+  ],
+  "called_by": [
+    "../portal/cake.js (audio.ended -> ../launcher/?random=1 under autoloop+random)",
+    "../portal2/cake.js (same)",
+    "../portal2/portal1style/cake.js (audio.ended -> ../../launcher/?random=1 under autoloop+random)"
+  ],
+  "calls_out_to": [
+    "Browser HTML parser",
+    "CSS stylesheet loading",
+    "script loading"
+  ],
+  "invariants": [
+    "Each .chamber button must carry data-target (relative URL or the sentinel 'RANDOM') and data-key (lowercase single-character hotkey). launcher.js queries by both attributes.",
+    "Variant targets must include ?autoloop=1 so the destination cake.js arms the 5s splash auto-dismiss and the audio.ended transition.",
+    "Page is reachable as a sibling of portal/, portal2/, portal2/portal1style/; data-target relative URLs assume this layout.",
+    "The four hotkeys are 1, 2, 3, r — kept in sync with the [N] hint spans inside each button label."
+  ],
+  "gotchas": [
+    "RANDOMIZE PROTOCOL uses data-target=\"RANDOM\" as a sentinel string, not a URL — launcher.js intercepts this value and picks a uniform-random variant URL.",
+    "There is no <noscript> fallback; if launcher.js fails to load the buttons do nothing.",
+    "The #cursor blinking span is content-driven by the launcher.css ::before pseudo-element; replacing it with a different cursor character requires touching CSS, not HTML."
+  ]
+}

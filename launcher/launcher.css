@@ -1,0 +1,126 @@
+html, body {
+    background: #000;
+    color: #ff0;
+    font-family: monospace;
+    font-size: 12pt;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#picker {
+    text-align: center;
+    padding: 2em;
+    max-width: 56em;
+    width: 100%;
+}
+
+.header {
+    font-size: 1.5em;
+    letter-spacing: 0.35em;
+    font-weight: normal;
+    margin: 0 0 0.3em 0;
+}
+
+.subheader {
+    font-size: 1em;
+    letter-spacing: 0.2em;
+    color: #cc0;
+    margin: 0 0 2em 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1em;
+    margin-bottom: 2em;
+}
+
+.chamber {
+    background: #000;
+    color: #ff0;
+    border: 1px solid #ff0;
+    font-family: monospace;
+    font-size: 1em;
+    padding: 1.5em 1em;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6em;
+    transition: background 80ms linear, color 80ms linear;
+}
+
+.chamber:hover,
+.chamber:focus {
+    background: #ff0;
+    color: #000;
+    outline: none;
+}
+
+.chamber .label {
+    font-size: 1.1em;
+    letter-spacing: 0.2em;
+}
+
+.chamber .subtitle {
+    font-size: 0.85em;
+    color: #cc0;
+    letter-spacing: 0.1em;
+}
+
+.chamber:hover .subtitle,
+.chamber:focus .subtitle {
+    color: #330;
+}
+
+.chamber .hotkey {
+    font-size: 0.85em;
+    opacity: 0.7;
+}
+
+.footer {
+    color: #cc0;
+    letter-spacing: 0.15em;
+    margin: 0;
+}
+
+#cursor {
+    display: inline-block;
+    width: 0.6em;
+    margin-left: 0.3em;
+    animation: blink 0.6s steps(1) infinite;
+}
+
+#cursor::before {
+    content: '_';
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+@media (max-width: 40em) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+    .header {
+        font-size: 1.15em;
+        letter-spacing: 0.2em;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #cursor {
+        animation: none;
+    }
+    .chamber {
+        transition: none;
+    }
+}

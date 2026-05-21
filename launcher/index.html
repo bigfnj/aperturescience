@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aperture Science &mdash; Enrichment Center Test Chamber Selection</title>
+<link rel="stylesheet" href="launcher.css">
+</head>
+<body>
+<main id="picker">
+    <h1 class="header">APERTURE SCIENCE ENRICHMENT CENTER</h1>
+    <p class="subheader">TEST CHAMBER SELECTION</p>
+    <div class="grid">
+        <button class="chamber" type="button" data-target="../portal/?autoloop=1" data-key="1">
+            <span class="label">TEST CHAMBER 01</span>
+            <span class="subtitle">STILL ALIVE &mdash; JONATHAN COULTON</span>
+            <span class="hotkey">[1]</span>
+        </button>
+        <button class="chamber" type="button" data-target="../portal2/?autoloop=1" data-key="2">
+            <span class="label">TEST CHAMBER 02</span>
+            <span class="subtitle">WANT YOU GONE &mdash; JONATHAN COULTON</span>
+            <span class="hotkey">[2]</span>
+        </button>
+        <button class="chamber" type="button" data-target="../portal2/portal1style/?autoloop=1" data-key="3">
+            <span class="label">TEST CHAMBER 02 LEGACY</span>
+            <span class="subtitle">WANT YOU GONE / PORTAL 1 LAYOUT</span>
+            <span class="hotkey">[3]</span>
+        </button>
+        <button class="chamber" type="button" data-target="RANDOM" data-key="r">
+            <span class="label">RANDOMIZE PROTOCOL</span>
+            <span class="subtitle">UNIFORM SELECTION ACROSS ALL CHAMBERS</span>
+            <span class="hotkey">[R]</span>
+        </button>
+    </div>
+    <p class="footer">SELECT A TEST CHAMBER TO BEGIN<span id="cursor"></span></p>
+</main>
+<script src="launcher.js"></script>
+</body>
+</html>
