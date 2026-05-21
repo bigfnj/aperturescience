@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "project": "aperturescience",
-  "last_audit_commit": "cb27b2cff51d172c4c3f4d45c55dd5d4fa263702",
-  "last_audit_at": "2026-05-19T18:47:51.000Z",
+  "last_audit_commit": "6927cbc70d0a5445b57494aab3ed1fa545d12913",
+  "last_audit_at": "2026-05-21T20:59:07.000Z",
   "generator": "ai-context-runner/4.4.0",
   "overview": "Static HTML/CSS/JavaScript recreation of the Portal and Portal 2 end-credit sequences. Each page loads local data arrays, a local controller script, and local audio to type lyrics and credits into fixed monospace layouts without a build system.",
   "frameworks": [
