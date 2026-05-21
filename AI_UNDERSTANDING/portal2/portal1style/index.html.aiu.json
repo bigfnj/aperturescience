@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal2/portal1style/index.html",
-  "sha1": "f26e3ff0ff489183add279e6fb88b8d471a56c03",
+  "sha1": "cf8a0aea711e5745c42916a4a99394324aee0b19",
   "purpose": "Alternate Portal 2 credits page that uses the older Portal 1 terminal layout. It loads local style, cakedata, and cake scripts, provides lyric and credit border containers, and includes a fullscreen #splash overlay that gates the credits sequence behind user click/keypress to satisfy modern autoplay policy.",
   "exports": [],
   "imports": [

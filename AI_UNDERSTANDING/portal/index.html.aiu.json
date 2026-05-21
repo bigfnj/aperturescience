@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal/index.html",
-  "sha1": "af5153dfef5470617c9eccbe41103ac97f80d99c",
+  "sha1": "f35849256f1bd64afd15a5e2a34f21ce956f53ae",
   "purpose": "HTML5 shell for the original Portal \"Still Alive\" end credits recreation. It declares the lyric, credit, and picture containers that portal/cake.js fills at runtime, loads style.css, cakedata.js, and cake.js in that order, and includes a fullscreen #splash overlay that gates the credits sequence behind a user click/keypress to satisfy modern autoplay policy. Script tags use defer so parsing isn't blocked.",
   "exports": [],
   "imports": [
