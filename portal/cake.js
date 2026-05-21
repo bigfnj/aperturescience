@@ -28,6 +28,13 @@ var cake = {
             cake.player.setAttribute('prebuffer', 'auto');
             cake.player.setAttribute('src', 'Still Alive.ogg');
             cake.player.load();
+            cake.player.addEventListener('ended', function() {
+                if (!cake.autoloop) return;
+                setTimeout(function() {
+                    if (cake.random) location.assign('../launcher/?random=1');
+                    else location.reload();
+                }, 8000);
+            });
             setTimeout(function() { cake.player.play(); }, delay);
         }
     },
@@ -226,12 +233,18 @@ var cake = {
 window.cake = cake;
 
 document.addEventListener('DOMContentLoaded', function() {
+    var params = new URLSearchParams(window.location.search);
+    cake.autoloop = params.get('autoloop') === '1';
+    cake.random = params.get('random') === '1';
     var splash = document.getElementById('splash');
+    var started = false;
     function startCake() {
+        if (started) return;
+        started = true;
         splash.classList.add('fade');
         cake.init();
     }
-    splash.addEventListener('click', startCake, { once: true });
+    splash.addEventListener('click', startCake);
     document.addEventListener('keydown', function onKey(e) {
         if (e.code === 'Space' || e.key === ' ') {
             e.preventDefault();
@@ -239,6 +252,9 @@ document.addEventListener('DOMContentLoaded', function() {
             startCake();
         }
     });
+    if (cake.autoloop) {
+        setTimeout(startCake, 5000);
+    }
 });
 
 })();

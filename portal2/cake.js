@@ -55,6 +55,13 @@ var cake = {
                 cake.audioReady = true;
                 cake.tryStart();
             });
+            cake.player.addEventListener("ended", function() {
+                if (!cake.autoloop) return;
+                setTimeout(function() {
+                    if (cake.random) location.assign('../launcher/?random=1');
+                    else location.reload();
+                }, 8000);
+            });
         } else {
             cake.audioReady = true;
             console.error("Audio playback unavailable.");
@@ -257,14 +264,20 @@ var cake = {
 window.cake = cake;
 
 document.addEventListener('DOMContentLoaded', function() {
+    var params = new URLSearchParams(window.location.search);
+    cake.autoloop = params.get('autoloop') === '1';
+    cake.random = params.get('random') === '1';
     cake.initMusicPlayer();
     var splash = document.getElementById('splash');
+    var ready = false;
     function userReady() {
+        if (ready) return;
+        ready = true;
         splash.classList.add('fade');
         cake.userReady = true;
         cake.tryStart();
     }
-    splash.addEventListener('click', userReady, { once: true });
+    splash.addEventListener('click', userReady);
     document.addEventListener('keydown', function onKey(e) {
         if (e.code === 'Space' || e.key === ' ') {
             e.preventDefault();
@@ -272,6 +285,9 @@ document.addEventListener('DOMContentLoaded', function() {
             userReady();
         }
     });
+    if (cake.autoloop) {
+        setTimeout(userReady, 5000);
+    }
 });
 
 })();

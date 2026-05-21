@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "path": "portal2/portal1style/cake.js",
-  "sha1": "b21b83cd35c717c8e983392023dbd1e43792f55d",
-  "purpose": "Legacy Portal 1-style runtime controller adapted for Portal 2 data. It waits for DOMContentLoaded, attaches splash dismissal handlers, then on user click/Space draws text borders, starts Want You Gone audio, types lyrics and credits, and blinks cursors.",
+  "sha1": "33df6abbd116c6c27690983df3da2e23560fdded",
+  "purpose": "Legacy Portal 1-style runtime controller adapted for Portal 2 data. It waits for DOMContentLoaded, reads ?autoloop=1 / ?random=1 URL params, attaches splash dismissal handlers (with 5s auto-dismiss when autoloop), then on dismissal draws text borders, starts Want You Gone audio, types lyrics and credits, and blinks cursors. When autoloop is active, the audio 'ended' event triggers an 8s pause then reload (or navigation to ../../launcher/?random=1 in random mode — note the double up-level because this variant lives at portal2/portal1style/).",
   "exports": [
     "cake"
   ],
@@ -24,6 +24,10 @@
     "Element.classList.add",
     "setTimeout",
     "HTMLAudioElement.play",
+    "HTMLAudioElement.addEventListener",
+    "URLSearchParams",
+    "Location.assign",
+    "Location.reload",
     "alert"
   ],
   "invariants": [
@@ -31,13 +35,16 @@
     "processLyricLine and processCreditLine assume global lyrics and credits arrays are loaded before this file.",
     "creditsMaxTime and creditsStartTime determine the full credit scroll pacing from total character count.",
     "Border character counts in drawLyricsBorder and drawCreditsBorder must stay aligned with the CSS box widths.",
-    "cake.init runs only after the user dismisses the #splash overlay (click or Space) on DOMContentLoaded; this satisfies modern autoplay policy."
+    "cake.init runs only after the user dismisses the #splash overlay (click or Space) on DOMContentLoaded, or after the 5s auto-dismiss when ?autoloop=1; the local 'started' flag guards against double-invocation so cake.init runs exactly once per page load.",
+    "?autoloop=1 sets cake.autoloop and arms the 5s splash auto-dismiss plus the audio 'ended' listener; ?random=1 sets cake.random and switches the post-credits transition from location.reload() to location.assign('../../launcher/?random=1') — note ../../ since this variant is nested two levels deep."
   ],
   "gotchas": [
     "The file body is wrapped in an IIFE with 'use strict'; cake is exposed to the page via window.cake = cake.",
-    "initMusicPlayer declares delay twice, both effectively zero, and uses a local Want You Gone.mp3 path.",
+    "initMusicPlayer uses a single delay = 0 (legacy double-declare was cleaned up during the autoloop edit) and points at the local Want You Gone.mp3 path.",
     "setTimeout uses the 3-argument form (callback, delay, ...args) to capture loop-iteration values at schedule time so var-scoped loop variables do not produce the closure trap.",
-    "The DOMContentLoaded handler assumes index.html provides an element with id 'splash'; without it splash.addEventListener throws and the credits never start."
+    "The DOMContentLoaded handler assumes index.html provides an element with id 'splash'; without it splash.addEventListener throws and the credits never start.",
+    "Launcher path is ../../launcher/ (two levels up), not ../launcher/ — diverges from portal/ and portal2/ which only need one level. Easy to miscopy.",
+    "On autoloop cycle 2+, location.reload() loses the original user gesture; WebView2/browser autoplay policy may block playback (see PHASE6_DESKTOP_APP_PLAN.md risk section)."
   ],
   "key_functions": [
     {
