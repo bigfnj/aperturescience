@@ -49,12 +49,19 @@ var cake = {
         cake.processCreditLines();
 
     },
-    initMusicPlayer: function()
+    initMusicPlayer: function(srcOverride)
     {
         cake.player = document.createElement("audio");
         if (cake.player.play) {
             cake.player.setAttribute("prebuffer", "auto");
-            cake.player.setAttribute("src", "Want You Gone.mp3");
+            cake.player.setAttribute("src", srcOverride || "Want You Gone.mp3");
+            if (srcOverride) {
+                cake.player.addEventListener("loadedmetadata", function() {
+                    if (cake.player.duration && isFinite(cake.player.duration)) {
+                        cake.creditsMaxTime = cake.player.duration;
+                    }
+                });
+            }
             cake.player.addEventListener("canplaythrough", function() {
                 cake.audioReady = true;
                 cake.tryStart();
@@ -298,12 +305,52 @@ function applyCustomCredits() {
     }
 }
 
+function loadCustomAudio(callback) {
+    var done = false;
+    function finish(blobUrl) {
+        if (done) return;
+        done = true;
+        callback(blobUrl);
+    }
+    setTimeout(function() { finish(null); }, 1500);
+    try {
+        var req = indexedDB.open('aperture', 1);
+        req.onupgradeneeded = function() {
+            var db = req.result;
+            if (!db.objectStoreNames.contains('audio')) {
+                db.createObjectStore('audio');
+            }
+        };
+        req.onerror = function() { finish(null); };
+        req.onsuccess = function() {
+            var db = req.result;
+            try {
+                if (!db.objectStoreNames.contains('audio')) { finish(null); return; }
+                var tx = db.transaction('audio', 'readonly');
+                var getReq = tx.objectStore('audio').get('customAudio');
+                getReq.onerror = function() { finish(null); };
+                getReq.onsuccess = function() {
+                    var record = getReq.result;
+                    if (record && record.blob) finish(URL.createObjectURL(record.blob));
+                    else finish(null);
+                };
+            } catch (e) { finish(null); }
+        };
+    } catch (e) { finish(null); }
+}
+
+function applyCustomAudio() {
+    loadCustomAudio(function(blobUrl) {
+        cake.initMusicPlayer(blobUrl);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     var params = new URLSearchParams(window.location.search);
     cake.autoloop = params.get('autoloop') === '1';
     cake.random = params.get('random') === '1';
     applyCustomCredits();
-    cake.initMusicPlayer();
+    applyCustomAudio();
     var splash = document.getElementById('splash');
     var ready = false;
     function userReady() {

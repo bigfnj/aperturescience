@@ -1,12 +1,14 @@
 {
   "schema": 1,
   "path": "launcher/launcher.js",
-  "sha1": "ec3ee417d4a9e807580bc433a24c8e1c19470d6e",
-  "purpose": "Phase 6 launcher controller. The IIFE runs immediately at script-eval time (script lives at the end of body, so all buttons are already parsed). If ?random=1 is present in the URL, it picks a uniform-random variant (with ?autoloop=1&random=1 baked in) and navigates with location.replace so the launcher doesn't pollute history. Otherwise it wires click handlers on every .chamber button (intercepting the RANDOM sentinel), a document-level keydown handler that matches the button's data-key attribute (skipping when focus is in a textarea/input), and the Enrichment Center Credits UI (initEnrichmentCredits): hydrates the textarea + MODE radios from localStorage.aperture.customCredits / aperture.creditsMode, autosaves on input, detects paste truncation via inputType, reads .txt files via FileReader and trims to 20,000 chars, shows the truncation notice for 5s, clears via [ CLEAR ], and toggles the MODE fieldset visibility at the 2,500-char STRETCH threshold.",
+  "sha1": "fc952640105204aafb77bddeca1c57ff2b32cc82",
+  "purpose": "Phase 6 launcher controller. The IIFE runs immediately at script-eval time (script lives at the end of body, so all buttons are already parsed). If ?random=1 is present in the URL, it picks a uniform-random variant (with ?autoloop=1&random=1 baked in) and navigates with location.replace so the launcher doesn't pollute history. Otherwise it wires click handlers on every .chamber button (intercepting the RANDOM sentinel), a document-level keydown handler that matches the button's data-key attribute (skipping when focus is in a textarea/input), the Enrichment Center Credits UI (initEnrichmentCredits), and the Override Track UI (initOverrideTrack). initEnrichmentCredits hydrates the textarea + MODE radios from localStorage.aperture.customCredits / aperture.creditsMode, autosaves on input, detects paste truncation via inputType, reads .txt files via FileReader and trims to 20,000 chars, shows the truncation notice for 5s, clears via [ CLEAR ], and toggles the MODE fieldset visibility at the 2,500-char STRETCH threshold. initOverrideTrack manages a user-supplied audio override stored in IndexedDB: on ?we=1 (WallpaperEngine mode) it greys out the section and hides the controls; otherwise it hydrates the status line from the saved record, wires LOAD AUDIO FILE (file picker → transient probe audio element to read duration → IDB.put { blob, filename, durationSec }), and RESET TO DEFAULT (IDB.delete). The IDB schema (database 'aperture' v1, object store 'audio') is shared with the variant cake.js files.",
   "exports": [],
   "imports": [
     "DOM globals",
-    "URLSearchParams"
+    "URLSearchParams",
+    "IndexedDB",
+    "URL.createObjectURL / URL.revokeObjectURL"
   ],
   "called_by": [
     "launcher/index.html"
@@ -16,13 +18,20 @@
     "document.querySelector",
     "document.addEventListener",
     "document.getElementById",
+    "document.createElement",
     "URLSearchParams",
     "Math.random",
     "Math.floor",
     "Location.assign",
     "Location.replace",
     "localStorage.getItem / setItem / removeItem",
-    "FileReader.readAsText"
+    "FileReader.readAsText",
+    "indexedDB.open",
+    "IDBDatabase.transaction",
+    "IDBObjectStore.put / get / delete",
+    "URL.createObjectURL",
+    "URL.revokeObjectURL",
+    "HTMLAudioElement.addEventListener (transient probe)"
   ],
   "invariants": [
     "VARIANTS array holds the three navigable variant URLs with ?autoloop=1&random=1 already appended; pickRandom selects one with uniform probability.",
@@ -31,7 +40,10 @@
     "Hotkey matching is case-insensitive (key is lowercased) and matched via [data-key] attribute selector; the canonical hotkeys are '1', '2', '3', 'r'. The keydown handler bails out when focus is in a TEXTAREA or INPUT so typing into the Enrichment Credits textarea cannot trigger a chamber jump.",
     "localStorage keys are 'aperture.customCredits' (string) and 'aperture.creditsMode' (loop|stop). Both are read by every variant cake.js via applyCustomCredits during DOMContentLoaded.",
     "MAX_CHARS=20000 is enforced both via <textarea maxlength> (silent browser cap) and via FileReader slice; both paths show the truncation notice for 5 seconds.",
-    "LOOP_THRESHOLD=2500 — under this length the MODE fieldset is visible and the variant uses naturalCreditsDelay; at-or-over this length the fieldset is hidden and the variant falls through to the STRETCH math regardless of the saved mode."
+    "LOOP_THRESHOLD=2500 — under this length the MODE fieldset is visible and the variant uses naturalCreditsDelay; at-or-over this length the fieldset is hidden and the variant falls through to the STRETCH math regardless of the saved mode.",
+    "IndexedDB schema is shared with variant cake.js files: database 'aperture' version 1, object store 'audio' (no keyPath), key 'customAudio' holding { blob, filename, durationSec }. The upgrade handler in idbOpen creates the store if missing — both launcher and variants must use this exact shape.",
+    "initOverrideTrack ?we=1 branch returns BEFORE wiring any event handlers, so the LOAD/RESET buttons truly no-op in WallpaperEngine mode (not just a CSS dim).",
+    "The audio file picker uses a transient <audio> probe to read duration on the client side before writing to IDB — this is the only way to know cake.creditsMaxTime ahead of time. The probe is created with URL.createObjectURL, listens for loadedmetadata or error, and the URL is revoked via URL.revokeObjectURL once finished (or after a 10s timeout) to avoid blob URL leaks."
   ],
   "gotchas": [
     "The keydown handler calls preventDefault when the key matches a button. Hotkeys that collide with browser shortcuts (none of 1/2/3/R do by default) would suppress those shortcuts on this page only.",
@@ -39,8 +51,12 @@
     "VARIANTS URLs are relative (../portal/, ../portal2/, ../portal2/portal1style/); they assume launcher/ sits as a sibling of those variant folders. Move the launcher and these break.",
     "The script intentionally does NOT wait for DOMContentLoaded; it relies on the <script> tag being at end of <body> so .chamber buttons are already in the DOM. Moving the tag into <head> without defer breaks button binding.",
     "All localStorage access goes through safeGet/safeSet/safeRemove which swallow exceptions — Safari private mode and storage-quota errors degrade gracefully (custom credits don't persist but UI still functions).",
+    "All IndexedDB access goes through idbOpen/idbPutAudio/idbGetAudio/idbDeleteAudio which swallow exceptions — Firefox private mode and quota errors invoke the callback with null/false and the UI shows an inline error pill rather than crashing.",
     "Paste-truncation detection uses event.inputType === 'insertFromPaste' + textarea.value.length === MAX_CHARS; this is best-effort and won't fire on legacy browsers that don't expose inputType on InputEvent.",
     "picker.value = '' is called after each load so re-selecting the same file fires a change event again.",
+    "audioPicker.value = '' is set IMMEDIATELY in the change handler (before processing) so re-selecting the same file fires the change event again. If moved after the IDB put, slow IDB writes would block re-selection briefly.",
+    "The 10s safety timeout on the audio probe is a coarse fallback for cases where loadedmetadata neither fires nor errors (very rare). Without it, a hung probe holds a blob URL until the next page navigation.",
+    "Override Track ?we=1 detection uses the same URLSearchParams instance (params) shared with the random-redirect check at the top of the IIFE — keeps the param access cheap and consistent.",
     "CREDITS_KEY / MODE_KEY / MAX_CHARS / LOOP_THRESHOLD must be declared above the if/else that calls initEnrichmentCredits — var hoists the binding but not the value, so calling initEnrichmentCredits before the assignments runs refreshMeta with `len < undefined` (false), which silently hides the MODE fieldset on first paint and reads localStorage with an undefined key."
   ]
 }

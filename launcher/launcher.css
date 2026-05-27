@@ -203,6 +203,58 @@ body {
     vertical-align: middle;
 }
 
+.override-track {
+    border: 1px solid #ff0;
+    padding: 1em 1.2em 1.2em;
+    margin: 0 0 2em;
+    text-align: left;
+}
+
+.override-track.disabled {
+    border-color: #550;
+    color: #550;
+}
+
+.override-track.disabled .section-header,
+.override-track.disabled .section-help {
+    color: #550;
+}
+
+.override-controls {
+    display: flex;
+    gap: 0.6em;
+    justify-content: center;
+    margin-bottom: 0.6em;
+    flex-wrap: wrap;
+}
+
+.override-meta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0.4em;
+    font-size: 0.85em;
+    color: #cc0;
+    letter-spacing: 0.1em;
+    gap: 1em;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+.audio-status {
+    color: #cc0;
+}
+
+.audio-error {
+    color: #f80;
+}
+
+.we-pill {
+    color: #f80;
+    border: 1px solid #f80;
+    padding: 0.2em 0.6em;
+}
+
 .hidden {
     display: none !important;
 }

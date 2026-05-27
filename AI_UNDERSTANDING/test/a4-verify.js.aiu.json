@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "path": "test/a4-verify.js",
+  "sha1": "66c9fb23bedf24e82fffd2163b87a67fd6276c93",
+  "purpose": "Headless verification harness for the Phase 6 Bundle A4 Override Track feature. Drives Playwright + Chromium against a localhost static server (default http://localhost:8765) and runs five suites in sequence: (1) launcherUiTests — DOM render of #overrideTrack, buttons, audio picker accept attribute, default-hidden status/error/WE pills; (2) wallpaperEngineModeTests — under ?we=1, asserts .disabled class on #overrideTrack, #weDisabled pill visible, both buttons HTML-disabled; (3) idbRoundTripTests — drives the file picker with the bundled Still Alive.ogg via setInputFiles, asserts the probe→IDB.put→status-refresh pipeline produces a visible '#audioStatus' line with filename + ~2:53 duration, then asserts the IDB record exists, then clicks RESET and asserts the record is gone + status hidden; (4) variantBlobOverrideTests — for each of portal/, portal2/, portal2/portal1style/, seeds IDB with a deliberately-different bundled audio file (fetched same-origin and put as a blob), reloads the variant, then asserts cake.player.src is a blob: URL, cake.creditsMaxTime is updated via loadedmetadata (differs from the bundle default AND lands within 10 s of the source nominal length), and where applicable cake.audioStartDelay is zeroed (portal/) or preserved (portal2/portal1style/); (5) variantNoOverrideRegressionTests — without IDB seed, asserts each variant falls back to the bundled audio file with unchanged creditsMaxTime + default audioStartDelay. Exit code = number of failed assertions; 0 on green.",
+  "exports": [],
+  "imports": [
+    "playwright (chromium)",
+    "Node.js path"
+  ],
+  "called_by": [
+    "test/package.json npm scripts.verify-a4",
+    "manual `node test/a4-verify.js` invocation"
+  ],
+  "calls_out_to": [
+    "chromium.launch",
+    "browser.newContext",
+    "page.goto / reload / evaluate / setInputFiles / click / locator / waitForFunction",
+    "fetch (preflight + same-origin audio blob seeding inside page.evaluate)",
+    "process.exit"
+  ],
+  "invariants": [
+    "BASE env var overrides the default http://localhost:8765; preflight() fails loud with exit 2 if the static server is not reachable.",
+    "Every scenario uses a fresh browser context (browser.newContext()) so IndexedDB state is isolated across tests — without this, the seeded blob in one test would leak into the next.",
+    "seedIdbWithFetch fetches an audio file same-origin from the running localhost server, packages it as a Blob, and stores it under aperture/audio/customAudio. The fetch happens inside page.evaluate so the resulting blob is bound to the page's origin (otherwise IndexedDB writes from the test would fail with cross-origin issues).",
+    "Per-variant override tests deliberately swap audio sources (portal/ gets Want You Gone.mp3, portal2/ and portal2/portal1style/ get Still Alive.ogg) so the creditsMaxTime override is clearly distinguishable from the variant's hardcoded default — same-source would silently pass even if the override never fired.",
+    "The creditsMaxTime tolerance is ±10 s of the nominal source duration because VBR MP3 and Vorbis OGG decoded durations diverge several seconds from the labeled length. The assertion ALSO requires maxTime !== bundleDefault so a stuck-at-default regression cannot pass by coincidence.",
+    "WaitForFunction is used for the RESET state-change because waitForSelector with the default visibility check cannot match a display:none element — the .hidden class makes the element non-visible.",
+    "variantNoOverrideRegressionTests guards against a regression where applyCustomAudio's fallback path (no IDB record present) stops calling cake.initMusicPlayer — without this suite, the no-override case would only be implicitly covered by test/a3-verify.js's scroll smoke."
+  ],
+  "gotchas": [
+    "Requires `npm install` inside test/ to pull playwright + `npx playwright install chromium` for the headless-shell binary (same as A3). test/node_modules and test/package-lock.json are gitignored.",
+    "page.setInputFiles uses an absolute file system path (REPO_ROOT is computed via path.resolve(__dirname, '..') so this is robust to cwd).",
+    "The idbRoundTripTests duration assertion uses a regex /\\b2:5[0-9]\\b/ to match 2:50–2:59 — Still Alive.ogg's actual decoded duration is 2:56 not the 2:53 the original Portal credits assume. Loosened to handle the ~3 s drift.",
+    "page.waitForFunction(() => window.cake.audioReady) waits up to 20 s for canplaythrough on the override audio. Blob URLs load from memory so this is usually ~1 s, but a long custom audio file (the test uses ~3 min files) takes longer to buffer enough for canplaythrough.",
+    "audioStartDelayDefault is null for portal2/ because portal2/cake.js doesn't have an audioStartDelay field (it plays immediately in cake.init). The assertion is skipped for that variant via the !== null guard.",
+    "The chromium flags --autoplay-policy=no-user-gesture-required and --mute-audio mirror test/a3-verify.js so headless audio doesn't blare during local runs and canplaythrough is reachable without a user gesture.",
+    "If you add an audio file to either portal/ or portal2/ with a different actual duration than the marketing length, update v.swapDurationSec — the ±10 s tolerance is generous but not infinite."
+  ],
+  "key_functions": [
+    {
+      "name": "assert",
+      "summary": "Increments pass/fail counters, prints status with optional detail, and pushes failures into a list reported at the end."
+    },
+    {
+      "name": "preflight",
+      "summary": "Fetches /launcher/index.html before launching the browser; bails out with exit 2 if the static server isn't reachable."
+    },
+    {
+      "name": "seedIdbWithFetch",
+      "summary": "Inside page.evaluate, fetches the named audio path same-origin, wraps the response in a Blob, opens IndexedDB 'aperture' v1, and puts { blob, filename, durationSec } under key 'customAudio'."
+    },
+    {
+      "name": "launcherUiTests",
+      "summary": "Asserts the OVERRIDE TRACK section + child elements render and that the audio picker has the expected accept attribute. All meta-row pills default hidden."
+    },
+    {
+      "name": "wallpaperEngineModeTests",
+      "summary": "Loads /launcher/?we=1, asserts the section gets the .disabled class, the WE pill becomes visible, and both buttons get the HTML disabled attribute."
+    },
+    {
+      "name": "idbRoundTripTests",
+      "summary": "Drives setInputFiles with the bundled Still Alive.ogg, waits for the probe→IDB.put→status-refresh pipeline to complete, asserts the status text + IDB record, then clicks RESET and asserts the IDB record is deleted + status hidden."
+    },
+    {
+      "name": "variantBlobOverrideTests",
+      "summary": "For each variant, seeds IDB with a deliberately-different audio file and asserts cake.player.src is a blob URL, cake.creditsMaxTime is overridden via loadedmetadata, and cake.audioStartDelay is zeroed where applicable (portal/) or preserved (portal2/portal1style/)."
+    },
+    {
+      "name": "variantNoOverrideRegressionTests",
+      "summary": "For each variant with NO IDB seed, asserts the bundled audio loads with unchanged creditsMaxTime and default audioStartDelay — guards the applyCustomAudio fallback path."
+    }
+  ]
+}

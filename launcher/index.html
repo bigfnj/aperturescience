@@ -51,6 +51,20 @@
             <label><input type="radio" name="creditsMode" value="stop"> STOP AFTER ONCE</label>
         </fieldset>
     </section>
+    <section id="overrideTrack" class="override-track" aria-labelledby="overrideHeader">
+        <h2 id="overrideHeader" class="section-header">OVERRIDE TRACK</h2>
+        <p class="section-help">USER-SUPPLIED AUDIO REPLACES THE BUNDLED SONG. CREDIT PACING ADAPTS TO THE NEW DURATION. LYRIC TIMING STAYS ORIGINAL.</p>
+        <div class="override-controls">
+            <button id="loadAudio" type="button" class="ec-button">[ LOAD AUDIO FILE ]</button>
+            <input id="audioPicker" type="file" accept="audio/*,.wav,.mp3,.ogg" hidden>
+            <button id="resetAudio" type="button" class="ec-button">[ RESET TO DEFAULT ]</button>
+        </div>
+        <div class="override-meta">
+            <span id="audioStatus" class="audio-status hidden"></span>
+            <span id="audioError" class="audio-error hidden"></span>
+            <span id="weDisabled" class="we-pill hidden">Custom audio not supported in WallpaperEngine.</span>
+        </div>
+    </section>
     <p class="footer">SELECT A TEST CHAMBER TO BEGIN<span id="cursor"></span></p>
 </main>
 <script src="launcher.js"></script>

@@ -13,6 +13,16 @@ var cake = {
     naturalCreditsDelay: 63,
     useNaturalDelay: false,
     customCreditsLoop: false,
+    userReady: false,
+    audioReady: false,
+    // Audio lead-in (ms) — matches Still Alive's 6.87s intro instrumental.
+    // Set to 0 when a custom audio override is loaded (no shared sync to preserve).
+    audioStartDelay: 6.87 * 1000,
+    tryStart: function() {
+        if (cake.userReady && cake.audioReady) {
+            cake.init();
+        }
+    },
     init: function() {
         cake.lyricsdiv = document.getElementById('lyricstext');
         cake.creditsdiv = document.getElementById('creditstext');
@@ -20,17 +30,28 @@ var cake = {
         cake.drawCreditsBorder();
         cake.initCredits();
         cake.initBlinker();
-        cake.initMusicPlayer();
+        setTimeout(function() {
+            if (cake.player && cake.player.play) cake.player.play();
+        }, cake.audioStartDelay);
         cake.processLyricLines();
         cake.processCreditLines();
     },
-    initMusicPlayer: function() {
-        var delay = 6.87 * 1000;
+    initMusicPlayer: function(srcOverride) {
         cake.player = document.createElement('audio');
         if (cake.player.play) {
             cake.player.setAttribute('prebuffer', 'auto');
-            cake.player.setAttribute('src', 'Still Alive.ogg');
-            cake.player.load();
+            cake.player.setAttribute('src', srcOverride || 'Still Alive.ogg');
+            if (srcOverride) {
+                cake.player.addEventListener('loadedmetadata', function() {
+                    if (cake.player.duration && isFinite(cake.player.duration)) {
+                        cake.creditsMaxTime = cake.player.duration;
+                    }
+                });
+            }
+            cake.player.addEventListener('canplaythrough', function() {
+                cake.audioReady = true;
+                cake.tryStart();
+            });
             cake.player.addEventListener('ended', function() {
                 if (!cake.autoloop) return;
                 setTimeout(function() {
@@ -38,7 +59,10 @@ var cake = {
                     else location.reload();
                 }, 8000);
             });
-            setTimeout(function() { cake.player.play(); }, delay);
+            cake.player.load();
+        } else {
+            cake.audioReady = true;
+            cake.tryStart();
         }
     },
     drawLyricsBorder: function() {
@@ -265,29 +289,72 @@ function applyCustomCredits() {
     }
 }
 
+function loadCustomAudio(callback) {
+    var done = false;
+    function finish(blobUrl) {
+        if (done) return;
+        done = true;
+        callback(blobUrl);
+    }
+    setTimeout(function() { finish(null); }, 1500);
+    try {
+        var req = indexedDB.open('aperture', 1);
+        req.onupgradeneeded = function() {
+            var db = req.result;
+            if (!db.objectStoreNames.contains('audio')) {
+                db.createObjectStore('audio');
+            }
+        };
+        req.onerror = function() { finish(null); };
+        req.onsuccess = function() {
+            var db = req.result;
+            try {
+                if (!db.objectStoreNames.contains('audio')) { finish(null); return; }
+                var tx = db.transaction('audio', 'readonly');
+                var getReq = tx.objectStore('audio').get('customAudio');
+                getReq.onerror = function() { finish(null); };
+                getReq.onsuccess = function() {
+                    var record = getReq.result;
+                    if (record && record.blob) finish(URL.createObjectURL(record.blob));
+                    else finish(null);
+                };
+            } catch (e) { finish(null); }
+        };
+    } catch (e) { finish(null); }
+}
+
+function applyCustomAudio() {
+    loadCustomAudio(function(blobUrl) {
+        if (blobUrl) cake.audioStartDelay = 0;
+        cake.initMusicPlayer(blobUrl);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     var params = new URLSearchParams(window.location.search);
     cake.autoloop = params.get('autoloop') === '1';
     cake.random = params.get('random') === '1';
     applyCustomCredits();
+    applyCustomAudio();
     var splash = document.getElementById('splash');
-    var started = false;
-    function startCake() {
-        if (started) return;
-        started = true;
+    var ready = false;
+    function userReady() {
+        if (ready) return;
+        ready = true;
         splash.classList.add('fade');
-        cake.init();
+        cake.userReady = true;
+        cake.tryStart();
     }
-    splash.addEventListener('click', startCake);
+    splash.addEventListener('click', userReady);
     document.addEventListener('keydown', function onKey(e) {
         if (e.code === 'Space' || e.key === ' ') {
             e.preventDefault();
             document.removeEventListener('keydown', onKey);
-            startCake();
+            userReady();
         }
     });
     if (cake.autoloop) {
-        setTimeout(startCake, 5000);
+        setTimeout(userReady, 5000);
     }
 });
 

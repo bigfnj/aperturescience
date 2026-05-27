@@ -1,13 +1,14 @@
 {
   "schema": 1,
   "path": "portal/cake.js",
-  "sha1": "6e787b9cdc5b52bc0c2bff090395704378f1df91",
-  "purpose": "Runtime controller for the Portal 1 credits animation. It waits for DOMContentLoaded, reads ?autoloop=1 / ?random=1 URL params, applies the Enrichment Center Credits override (reads localStorage.aperture.customCredits / aperture.creditsMode and rewrites window.credits before init), attaches splash dismissal handlers, then on user click/Space (or 5s auto-dismiss when autoloop) starts audio, draws text borders, types lyric and credit data character by character, blinks cursors, and swaps ASCII art according to lyric metadata. When custom credits are present and under 2,500 chars, credits type at the natural 63 ms/char pace; in loop mode the credit column wipes and re-types continuously. When autoloop is active, the audio 'ended' event triggers an 8s pause then reload (or navigation to ../launcher/?random=1 in random mode).",
+  "sha1": "190e77a1828194224aa9bda506934328b9b728f0",
+  "purpose": "Runtime controller for the Portal 1 credits animation. On DOMContentLoaded it reads ?autoloop=1 / ?random=1 URL params, applies the Enrichment Center Credits override (window.credits + useNaturalDelay/customCreditsLoop flags) via localStorage, then calls applyCustomAudio() which asynchronously looks up an IndexedDB-stored audio blob and forwards it as srcOverride to cake.initMusicPlayer (or null for the bundled Still Alive.ogg). Splash dismissal sets cake.userReady; canplaythrough sets cake.audioReady; cake.tryStart calls cake.init only when both are true. cake.init draws text borders, schedules the audio play() via cake.audioStartDelay (default 6.87 s for Still Alive's intro instrumental; zeroed by applyCustomAudio when a blob URL is present), and types lyrics + credits character by character. When custom credits are present and under 2,500 chars, credits type at the natural 63 ms/char pace; in loop mode the credit column wipes and re-types continuously. When custom audio is present, cake.creditsMaxTime is overwritten on loadedmetadata with cake.player.duration so the STRETCH math adapts to the new song length. On audio.ended under ?autoloop=1, an 8 s pause precedes either location.reload() or location.assign('../launcher/?random=1') (random mode).",
   "exports": [
     "cake"
   ],
   "imports": [
     "DOM globals",
+    "IndexedDB",
     "portal/cakedata.js globals: asciiart, credits, lyrics",
     "Still Alive.ogg"
   ],
@@ -30,33 +31,54 @@
     "URLSearchParams",
     "Location.assign",
     "Location.reload",
-    "localStorage.getItem"
+    "localStorage.getItem",
+    "indexedDB.open",
+    "IDBDatabase.transaction",
+    "IDBObjectStore.get",
+    "URL.createObjectURL"
   ],
   "invariants": [
     "cake.init must run after the HTML containers exist; it caches lyric and credit containers before scheduling any line rendering.",
     "cake.delayMultiplier is the shared conversion from cakedata delay seconds to milliseconds.",
     "processLyricLine and processCreditLine assume stable global lyrics and credits arrays loaded before this file.",
     "processLetter and setPicture use document.createTextNode (no innerHTML), so HTML special chars need no escaping; a regex substitutes regular space (U+0020) with U+00A0 NBSP so adjacent spaces survive default white-space collapsing.",
-    "cake.init runs only after the user dismisses the #splash overlay (click or Space) on DOMContentLoaded, or after the 5s auto-dismiss when ?autoloop=1; the local 'started' flag guards against double-invocation so cake.init runs exactly once per page load.",
+    "cake.userReady / cake.audioReady gate cake.init: cake.tryStart only calls cake.init when both are true. cake.userReady flips from the splash dismissal handler (click or Space) or the 5s auto-dismiss under ?autoloop=1; cake.audioReady flips from the audio element's canplaythrough listener (or the audio-unavailable fallback). A local 'ready' flag in the DOMContentLoaded closure also guards against double-invocation of the splash handler.",
+    "cake.audioStartDelay (default 6.87 * 1000 ms) is the audio lead-in inside cake.init — it preserves the original Still Alive sync where lyric typing begins at T=0 but audio plays 6.87 s later (matching the intro instrumental). applyCustomAudio zeroes this when a blob URL is loaded so user-supplied songs play immediately on init.",
     "?autoloop=1 sets cake.autoloop and arms the 5s splash auto-dismiss plus the audio 'ended' listener; ?random=1 sets cake.random and switches the post-credits transition from location.reload() to location.assign('../launcher/?random=1'). Without ?autoloop=1, behavior is unchanged from the static-page case.",
-    "applyCustomCredits runs inside DOMContentLoaded before cake.init is reachable; it overwrites window.credits when localStorage.aperture.customCredits is non-empty after trim, and arms cake.useNaturalDelay + cake.customCreditsLoop only when length < 2500.",
+    "applyCustomCredits runs inside DOMContentLoaded before applyCustomAudio; it overwrites window.credits when localStorage.aperture.customCredits is non-empty after trim, and arms cake.useNaturalDelay + cake.customCreditsLoop only when length < 2500.",
+    "applyCustomAudio runs inside DOMContentLoaded after applyCustomCredits. It opens IndexedDB ('aperture' DB, 'audio' object store) and reads the 'customAudio' record. If present and record.blob is set, URL.createObjectURL produces a blob URL that's forwarded to cake.initMusicPlayer; otherwise cake.initMusicPlayer is called with no override (bundled Still Alive.ogg). A 1.5 s fallback timer in loadCustomAudio guarantees cake.initMusicPlayer is invoked even if IDB hangs.",
+    "cake.initMusicPlayer accepts an optional srcOverride argument. When srcOverride is truthy, a loadedmetadata listener overwrites cake.creditsMaxTime with cake.player.duration so the existing STRETCH math adapts to the new song length. When falsy (bundled audio), creditsMaxTime stays at its hardcoded 173 — preserving original Still Alive pacing exactly.",
     "cake.naturalCreditsDelay = 63 (ms/char) is the Portal 1 natural pace; processCreditLines uses it when cake.useNaturalDelay is true and otherwise falls through to the STRETCH formula creditsMaxTime * 1000 / totalchars.",
-    "cake.restartCustomCredits is invoked via setTimeout from processCreditLines only when cake.customCreditsLoop is true; it wipes the credits column (preserving the blinker DOM node + its blink timer), resets lastCreditsIndex, re-runs initCredits, and re-calls processCreditLines — chaining loop iterations indefinitely."
+    "cake.restartCustomCredits is invoked via setTimeout from processCreditLines only when cake.customCreditsLoop is true; it wipes the credits column (preserving the blinker DOM node + its blink timer), resets lastCreditsIndex, re-runs initCredits, and re-calls processCreditLines — chaining loop iterations indefinitely.",
+    "IndexedDB schema is shared with the launcher: database 'aperture' version 1, object store 'audio' (no keyPath), key 'customAudio' holding { blob, filename, durationSec }. Both this file and launcher/launcher.js call indexedDB.open with the same upgrade handler so the schema is created once per origin."
   ],
   "gotchas": [
     "The file body is wrapped in an IIFE with 'use strict'; cake is exposed to the page via window.cake = cake so HTML id 'splash' handlers and any inline attribute handlers can still reach it.",
     "setTimeout uses the 3-argument form (callback, delay, ...args) to capture loop-iteration values (text.charAt(x), index) at schedule time so the var-scoped loop variables don't produce the closure trap.",
-    "initMusicPlayer relies on the local Still Alive.ogg filename next to index.html.",
+    "initMusicPlayer is called from inside applyCustomAudio's IDB callback, NOT directly from DOMContentLoaded. This means audio loading races user splash dismissal AND the IDB lookup. The userReady/audioReady gate converges them.",
+    "loadCustomAudio's 1.5 s fallback timer is intentional: if IndexedDB hangs (extremely rare, but Firefox private mode can fail to open the DB), the variant falls back to the bundled audio after 1.5 s rather than sitting forever. Bumping this lower can cut user-perceived load time but risks racing slow disk I/O on first-page-load.",
+    "If canplaythrough never fires (e.g. corrupted custom audio), cake.audioReady stays false and cake.init never runs — the page sits past the splash silently. The 'audio unavailable' fallback (else branch when cake.player.play is falsy) sets audioReady = true so the page at least dismisses past the splash without media.",
+    "applyCustomAudio sets cake.audioStartDelay = 0 BEFORE calling cake.initMusicPlayer. Reordering these or moving the assignment to a later async callback would mean the original 6.87s lead-in plays for the first iteration of custom audio. The current ordering is load-bearing.",
+    "URL.createObjectURL produces a blob URL that's only valid for the page lifetime; on autoloop reload the URL is regenerated from a fresh IDB read (the blob itself persists across reloads).",
+    "The loadedmetadata listener is bound ONLY when srcOverride is truthy. Binding it for bundled audio too would risk overwriting cake.creditsMaxTime with a tiny audio.duration drift (e.g. 172.95 vs the hardcoded 173) — small but enough to shift the per-character STRETCH math.",
     "The DOMContentLoaded handler assumes index.html provides an element with id 'splash'; without it splash.addEventListener throws and the credits never start.",
-    "Autoloop transition waits 8s after audio.ended to let trailing credit typing finish; if creditsMaxTime is ever raised above the song length the transition could fire mid-typing.",
+    "Autoloop transition waits 8s after audio.ended to let trailing credit typing finish; if creditsMaxTime is ever raised above the song length (e.g. via a very short custom audio file) the transition could fire mid-typing.",
     "On autoloop cycle 2+, location.reload() loses the original user gesture; WebView2/browser autoplay policy may block playback. Same-origin media-engagement usually carries through but is not guaranteed (see PHASE6_DESKTOP_APP_PLAN.md risk section).",
-    "applyCustomCredits wraps localStorage access in try/catch — Safari private mode and storage-quota errors silently skip the override; the variant then plays the original Portal credits.",
+    "applyCustomCredits and loadCustomAudio both wrap their storage access in try/catch — Safari private mode and storage-quota errors silently skip the override; the variant then plays the original Portal credits and bundled audio.",
     "restartCustomCredits depends on cake.creditsBlinker being a long-lived DOM node whose blink setTimeout chain captures the same reference. The wipe sets creditsdiv.innerHTML='' which detaches the blinker, then appendChild re-attaches it — the in-flight blink timer survives because it holds the captured reference."
   ],
   "key_functions": [
     {
+      "name": "tryStart",
+      "summary": "Gate function — calls cake.init only when both cake.userReady (splash dismissal) and cake.audioReady (canplaythrough) are true."
+    },
+    {
       "name": "init",
-      "summary": "Caches DOM containers, draws borders, initializes credits and blinkers, starts audio, then schedules lyric and credit rendering."
+      "summary": "Caches DOM containers, draws borders, initializes credits and blinkers, schedules audio play via cake.audioStartDelay, then schedules lyric and credit rendering."
+    },
+    {
+      "name": "initMusicPlayer",
+      "summary": "Creates the audio element, points it at srcOverride or 'Still Alive.ogg', binds loadedmetadata (when overriding, sets cake.creditsMaxTime = cake.player.duration), canplaythrough (sets audioReady + tryStart), and ended listeners, then triggers load()."
     },
     {
       "name": "processLyricLine",
@@ -81,6 +103,14 @@
     {
       "name": "applyCustomCredits",
       "summary": "Module-scope helper run in DOMContentLoaded; reads localStorage.aperture.customCredits / aperture.creditsMode, replaces window.credits, and arms useNaturalDelay + customCreditsLoop when under 2,500 chars."
+    },
+    {
+      "name": "loadCustomAudio",
+      "summary": "Module-scope IDB helper. Opens database 'aperture' v1, reads the 'audio' object store's 'customAudio' record, and invokes the callback with either URL.createObjectURL(record.blob) or null. 1.5 s fallback timer guards against IDB hangs."
+    },
+    {
+      "name": "applyCustomAudio",
+      "summary": "Module-scope helper run in DOMContentLoaded after applyCustomCredits. Calls loadCustomAudio; on blob URL hit, zeroes cake.audioStartDelay and forwards the URL to cake.initMusicPlayer as srcOverride. On miss, calls cake.initMusicPlayer with no override (bundled audio)."
     }
   ]
 }
