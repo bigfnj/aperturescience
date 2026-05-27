@@ -69,7 +69,7 @@ var cake = {
             cake.player.addEventListener("ended", function() {
                 if (!cake.autoloop) return;
                 setTimeout(function() {
-                    if (cake.random) location.assign('../launcher/?random=1');
+                    if (cake.random) location.assign('../launcher/index.html?random=1');
                     else location.reload();
                 }, 8000);
             });

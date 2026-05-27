@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "test/a3-verify.js",
-  "sha1": "e64e695aea186d988083acf7424328fce0672dc6",
+  "sha1": "6ffc89136edfb80bee3c79e1207410d5f8c324ee",
   "purpose": "Headless verification harness for the Phase 6 Bundle A3 Enrichment Center Credits feature. Promoted from /tmp/a3-verify.js into the repo so it survives machine changes and can grow with future Bundle A items. Drives Playwright + Chromium against a localhost static server (default http://localhost:8765) and runs three suites in sequence: (1) launcherTests — DOM render, autosave, mode toggle, char counter, 2,500-char threshold visibility, CLEAR, hydration after reload, ?random=1 redirect, paste-truncation notice; (2) variantOverrideTests — for each of portal/, portal2/, portal2/portal1style/, seeds localStorage and checks cake.useNaturalDelay / cake.customCreditsLoop / window.credits across 4 scenarios (EMPTY, SHORT+LOOP, SHORT+STOP, LONG); (3) scrollSmokeTests — dismisses the splash and waits per-variant for credit characters to actually appear in #creditstext, catching bugs the freeze-frame assertions can't (e.g. cake.init runs but typing never starts). Exit code = number of failed assertions; 0 on green.",
   "exports": [],
   "imports": [

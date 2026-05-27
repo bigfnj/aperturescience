@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal2/cake.js",
-  "sha1": "35cd0fd93ccbf0461ce96d156294586f9e96d570",
+  "sha1": "cc0c5312b548c661b8604837dd975e79bc95529f",
   "purpose": "Runtime controller for the modern Portal 2 credits animation. On DOMContentLoaded it reads ?autoloop=1 / ?random=1 URL params, applies the Enrichment Center Credits override (window.credits + useNaturalDelay/customCreditsLoop flags) via localStorage, then calls applyCustomAudio() which asynchronously looks up an IndexedDB-stored audio blob and forwards it as srcOverride to cake.initMusicPlayer (or null for the bundled Want You Gone.mp3). Splash dismissal sets cake.userReady; canplaythrough sets cake.audioReady; cake.tryStart calls cake.init only when both are true. cake.init types lyrics + credits, handles cursor blinking, computes credit pacing, and exposes volume control. When custom credits are present and under 2,500 chars, credits type at the natural 33 ms/char pace; in loop mode the credit column wipes and re-types continuously. When custom audio is present, cake.creditsMaxTime is overwritten on loadedmetadata with cake.player.duration so the STRETCH math adapts to the new song length. On audio.ended under ?autoloop=1, an 8 s pause precedes either location.reload() or location.assign('../launcher/?random=1') (random mode).",
   "exports": [
     "cake"
@@ -42,7 +42,7 @@
     "processLyricLine and processCreditLine assume global lyrics and credits arrays are loaded first.",
     "creditsMaxTime and creditsStartTime determine the full credit scroll pacing from total character count.",
     "tryStart is the single dispatch point that decides whether to call cake.init; both userReady and audioReady must be true.",
-    "?autoloop=1 sets cake.autoloop and arms the 5s splash auto-dismiss plus the audio 'ended' listener; ?random=1 sets cake.random and switches the post-credits transition from location.reload() to location.assign('../launcher/?random=1'). The local 'ready' flag guards userReady() against double-invocation.",
+    "?autoloop=1 sets cake.autoloop and arms the 5s splash auto-dismiss plus the audio 'ended' listener; ?random=1 sets cake.random and switches the post-credits transition from location.reload() to location.assign('../launcher/index.html?random=1') — explicit /index.html for portability across HTTP servers, file://, WSL file shares, and Tauri webview. The local 'ready' flag guards userReady() against double-invocation.",
     "applyCustomCredits runs inside DOMContentLoaded before applyCustomAudio; it overwrites window.credits when localStorage.aperture.customCredits is non-empty after trim, and arms cake.useNaturalDelay + cake.customCreditsLoop only when length < 2500.",
     "applyCustomAudio runs inside DOMContentLoaded after applyCustomCredits. It opens IndexedDB ('aperture' DB, 'audio' object store) and reads the 'customAudio' record. If present and record.blob is set, URL.createObjectURL produces a blob URL that's forwarded to cake.initMusicPlayer; otherwise cake.initMusicPlayer is called with no override (bundled Want You Gone.mp3). A 1.5 s fallback timer in loadCustomAudio guarantees cake.initMusicPlayer is invoked even if IDB hangs.",
     "cake.initMusicPlayer accepts an optional srcOverride argument. When srcOverride is truthy, a loadedmetadata listener overwrites cake.creditsMaxTime with cake.player.duration so the existing STRETCH math adapts to the new song length. When falsy (bundled audio), creditsMaxTime stays at its hardcoded 144 — preserving original Want You Gone pacing exactly.",

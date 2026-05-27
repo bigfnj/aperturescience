@@ -306,7 +306,7 @@ async function lastVariantFocusTests(browser) {
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
     await page.goto(`${BASE}/launcher/`);
-    await page.evaluate(() => localStorage.setItem('aperture.lastVariant', '../portal2/?autoloop=1'));
+    await page.evaluate(() => localStorage.setItem('aperture.lastVariant', '../portal2/index.html?autoloop=1'));
     await page.reload();
     await page.waitForTimeout(100);  // give focusLastVariant() a tick to run
 
@@ -314,7 +314,7 @@ async function lastVariantFocusTests(browser) {
         () => document.activeElement && document.activeElement.getAttribute &&
               document.activeElement.getAttribute('data-target'));
     assert('seed lastVariant = portal2/ → chamber 2 has focus on launcher load',
-        focusedDataTarget === '../portal2/?autoloop=1', `got "${focusedDataTarget}"`);
+        focusedDataTarget === '../portal2/index.html?autoloop=1', `got "${focusedDataTarget}"`);
     await ctx.close();
 
     // Chamber click writes lastVariant — verify on the destination page (same origin → shared localStorage).
@@ -326,8 +326,8 @@ async function lastVariantFocusTests(browser) {
         page2.click('.chamber[data-key="3"]')
     ]);
     const persisted = await page2.evaluate(() => localStorage.getItem('aperture.lastVariant'));
-    assert('clicking chamber 3 → aperture.lastVariant = "../portal2/portal1style/?autoloop=1"',
-        persisted === '../portal2/portal1style/?autoloop=1',
+    assert('clicking chamber 3 → aperture.lastVariant points at portal1style/index.html',
+        persisted === '../portal2/portal1style/index.html?autoloop=1',
         `got ${JSON.stringify(persisted)}`);
     await ctx2.close();
 }

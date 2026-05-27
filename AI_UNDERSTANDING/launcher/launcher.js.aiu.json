@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "launcher/launcher.js",
-  "sha1": "dc07d082c05d07e59a05a4d6e37e0666b38641ce",
+  "sha1": "e2b5f9a16aa542a849fe8111a990a720ac93e234",
   "purpose": "Phase 6 launcher controller. The IIFE runs immediately at script-eval time (script lives at the end of body, so all buttons are already parsed). If ?random=1 is present in the URL, it picks a uniform-random variant (with ?autoloop=1&random=1 baked in), routes through applyTextColorParam to append the user's textcolor mode where appropriate, and navigates with location.replace so the launcher doesn't pollute history. Otherwise it wires click handlers on every .chamber button (intercepting the RANDOM sentinel), a document-level keydown handler that matches the button's data-key attribute (skipping when focus is in a textarea/input), the Display Mode UI (initDisplayMode), the Enrichment Center Credits UI (initEnrichmentCredits), the Override Track UI (initOverrideTrack), then calls focusLastVariant to give keyboard focus to the chamber the user last launched. navigate() saves the clicked target to localStorage.aperture.lastVariant and applies applyTextColorParam before location.assign. initDisplayMode hydrates 4 radios + a `<input type=color>` from localStorage.aperture.textColorMode + localStorage.aperture.customColor, autosaves on change, and toggles the picker's .hidden class based on CUSTOM selection. initEnrichmentCredits manages the .txt credit override (same as A3). initOverrideTrack manages the IndexedDB audio override (same as A4); WallpaperEngine mode is detected as either ?we=1 in the URL OR typeof window.wallpaperPropertyListener !== 'undefined' (runtime sniff for the WE-injected global) and greys out the section.",
   "exports": [],
   "imports": [
@@ -34,7 +34,7 @@
     "HTMLAudioElement.addEventListener (transient probe)"
   ],
   "invariants": [
-    "VARIANTS array holds the three navigable variant URLs with ?autoloop=1&random=1 already appended; pickRandom selects one with uniform probability.",
+    "VARIANTS array holds the three navigable variant URLs (each ending in /index.html?autoloop=1&random=1, NOT a bare directory) so the random-pick navigation works across HTTP servers, file://, WSL file shares (\\\\wsl.localhost), and Tauri webview. pickRandom selects one with uniform probability.",
     "The 'RANDOM' sentinel on a button's data-target triggers pickRandom; any other value is treated as a literal URL and passed to location.assign.",
     "?random=1 on the launcher itself triggers location.replace (not assign) so the launcher entry is overwritten in history, leaving Back navigation on the credits page to return to the previous external referrer rather than bouncing back into the random picker.",
     "Hotkey matching is case-insensitive (key is lowercased) and matched via [data-key] attribute selector; the canonical hotkeys are '1', '2', '3', 'r'. The keydown handler bails out when focus is in a TEXTAREA or INPUT so typing into the Enrichment Credits textarea cannot trigger a chamber jump.",

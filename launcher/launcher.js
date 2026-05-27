@@ -1,10 +1,13 @@
 (function() {
 'use strict';
 
+// URLs point at index.html explicitly (not just the directory) so navigation
+// works under HTTP servers, file:// access, WSL file shares (\\wsl.localhost),
+// and Tauri's bundled webview — all of which handle directory URLs differently.
 var VARIANTS = [
-    '../portal/?autoloop=1&random=1',
-    '../portal2/?autoloop=1&random=1',
-    '../portal2/portal1style/?autoloop=1&random=1'
+    '../portal/index.html?autoloop=1&random=1',
+    '../portal2/index.html?autoloop=1&random=1',
+    '../portal2/portal1style/index.html?autoloop=1&random=1'
 ];
 
 function pickRandom() {

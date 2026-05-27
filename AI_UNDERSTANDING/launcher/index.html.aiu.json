@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "launcher/index.html",
-  "sha1": "9a21049a13faaf84f23fb4edabfd40cbc078cec6",
+  "sha1": "88858b2428a05452ceb7d49000d377fe79401eef",
   "purpose": "HTML5 shell for the Phase 6 launcher page. Renders a yellow-on-black Aperture-themed 4-button picker (TEST CHAMBER 01 / 02 / 02 LEGACY / RANDOMIZE PROTOCOL) with subtitles and hotkey hints, then three feature panels stacked vertically: (1) DISPLAY MODE — 4 radios (DEFAULT / CYCLE / RAINBOW / CUSTOM) + hidden-by-default `<input type=\"color\" id=\"customColor\">` for the CUSTOM hex picker; (2) ENRICHMENT CENTER CREDITS — LOAD .TXT/CLEAR buttons, autosaving textarea with maxlength=20000, character counter, truncation notice, LOOP/STOP MODE radios; (3) OVERRIDE TRACK — LOAD AUDIO FILE/RESET TO DEFAULT buttons, status line showing filename + duration, error pill, and WallpaperEngine-disabled pill. Each chamber button carries a data-target attribute consumed by launcher.js for navigation; the enrichment and override-track elements have stable ids consumed by launcher.js for localStorage and IndexedDB round-tripping. Loads launcher.css and launcher.js (script at end of body).",
   "exports": [],
   "imports": [
@@ -20,6 +20,7 @@
   ],
   "invariants": [
     "Each .chamber button must carry data-target (relative URL or the sentinel 'RANDOM') and data-key (lowercase single-character hotkey). launcher.js queries by both attributes.",
+    "Variant targets explicitly point at index.html (e.g. '../portal/index.html?autoloop=1'), NOT a bare directory URL — works under HTTP servers, file://, WSL file shares (\\\\wsl.localhost), and Tauri's bundled webview. Bare directory URLs fail on Windows WSL file share because Edge shows a directory listing instead of auto-serving index.html.",
     "Variant targets must include ?autoloop=1 so the destination cake.js arms the 5s splash auto-dismiss and the audio.ended transition.",
     "Page is reachable as a sibling of portal/, portal2/, portal2/portal1style/; data-target relative URLs assume this layout.",
     "The four hotkeys are 1, 2, 3, r — kept in sync with the [N] hint spans inside each button label.",

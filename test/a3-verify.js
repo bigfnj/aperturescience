@@ -72,10 +72,16 @@ async function launcherTests(browser) {
     const chamberCount = await page.locator('.chamber').count();
     assert('4 chamber buttons render', chamberCount === 4, `got ${chamberCount}`);
 
+    // Chamber data-targets explicitly point at index.html — works under HTTP
+    // servers, file://, WSL file shares (\\wsl.localhost), and Tauri webview.
+    // Bare directory URLs (../portal2/?autoloop=1) fail on Windows WSL file
+    // share because Edge shows a directory listing instead of auto-serving
+    // index.html. Regression bug found 2026-05-26 (chamber 2 dumped to file
+    // listing).
     const expectedTargets = {
-        '1': '../portal/?autoloop=1',
-        '2': '../portal2/?autoloop=1',
-        '3': '../portal2/portal1style/?autoloop=1',
+        '1': '../portal/index.html?autoloop=1',
+        '2': '../portal2/index.html?autoloop=1',
+        '3': '../portal2/portal1style/index.html?autoloop=1',
         'r': 'RANDOM'
     };
     for (const key of Object.keys(expectedTargets)) {
