@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "path": "test/a3-verify.js",
+  "sha1": "126455d045c937a6d17936508abd572e0970f090",
+  "purpose": "Headless verification harness for the Phase 6 Bundle A3 Enrichment Center Credits feature. Promoted from /tmp/a3-verify.js into the repo so it survives machine changes and can grow with future Bundle A items. Drives Playwright + Chromium against a localhost static server (default http://localhost:8765) and runs three suites in sequence: (1) launcherTests — DOM render, autosave, mode toggle, char counter, 2,500-char threshold visibility, CLEAR, hydration after reload, ?random=1 redirect, paste-truncation notice; (2) variantOverrideTests — for each of portal/, portal2/, portal2/portal1style/, seeds localStorage and checks cake.useNaturalDelay / cake.customCreditsLoop / window.credits across 4 scenarios (EMPTY, SHORT+LOOP, SHORT+STOP, LONG); (3) scrollSmokeTests — dismisses the splash and waits per-variant for credit characters to actually appear in #creditstext, catching bugs the freeze-frame assertions can't (e.g. cake.init runs but typing never starts). Exit code = number of failed assertions; 0 on green.",
+  "exports": [],
+  "imports": [
+    "playwright (chromium)"
+  ],
+  "called_by": [
+    "test/package.json npm scripts.verify",
+    "manual `node test/a3-verify.js` invocation"
+  ],
+  "calls_out_to": [
+    "chromium.launch",
+    "browser.newContext",
+    "page.goto / reload / evaluate / fill / click / locator",
+    "fetch (preflight)",
+    "process.exit"
+  ],
+  "invariants": [
+    "BASE env var overrides the default http://localhost:8765; the preflight() fetch fails loud with exit code 2 and a python3 -m http.server hint if the server is not reachable, so the harness never burns time launching chromium against a dead origin.",
+    "Every scenario uses a fresh browser context (browser.newContext()) so localStorage is isolated across tests — without this, the persisted custom-credits state from one assertion would leak into the next.",
+    "Variant override tests rely on cake.useNaturalDelay / cake.customCreditsLoop being set synchronously inside the DOMContentLoaded applyCustomCredits handler, BEFORE splash dismissal. The waitForFunction(() => window.cake && window.credits) gate exists only to ensure DOMContentLoaded has run, not to wait for cake.init.",
+    "Scroll smoke per-variant wait times match each cake.js's creditsStartTime: portal/ uses creditsStartTime=9 so the smoke waits 12s; portal2/ and portal2/portal1style/ both use creditsStartTime=0 so 4s is enough. The autoplay-policy=no-user-gesture-required Chromium flag lets the splash click (the gesture) start audio + lyric typing in headless mode.",
+    "Credit-typing assertion strips both the blinker character ('_') and U+0020 spaces from #creditstext.textContent — only NON-blinker, NON-space characters proving real credit chars were typed. The seeded custom credits intentionally contain no '_' or ' ' chars so the regex is safe.",
+    "Each variant override scenario asserts exactly 3 cake-state values + (where relevant) a credits-array shape check, summing to the assertion count documented in the HANDOFF (~52). Adding new scenarios should keep the same shape so the count remains predictable."
+  ],
+  "gotchas": [
+    "Requires `npm install` inside test/ to pull playwright + `npx playwright install chromium` for the ~113 MB headless-shell binary. Both are one-time per machine. test/node_modules and test/package-lock.json are gitignored.",
+    "page.url() after the ?random=1 redirect can resolve to any of the three variants — the assertion accepts the union and just verifies the URL matches /(portal|portal2|portal2\\/portal1style)\\/.+autoloop=1.+random=1/. Tightening this to a specific variant would break randomness.",
+    "Paste-truncation test dispatches a synthetic InputEvent with inputType='insertFromPaste' — this matches what real browsers send for paste, but headless-shell may differ across major versions. If this assertion ever flakes, check that the InputEvent constructor still honors the inputType field in the running Chromium.",
+    "The scroll smoke gives portal/ a hard 12s budget. If portal/cake.js's creditsStartTime is ever lowered, the test will pass earlier but the wait will still burn 12s — adjust the wait constant in the variants array (top of scrollSmokeTests) if you want faster runs.",
+    "The LONG scenario seeds 300 repetitions of 'credit line\\n' (3,600 chars) which crosses the 2,500 LOOP_THRESHOLD; if LOOP_THRESHOLD ever changes (currently in launcher/launcher.js line 25 AND in all three cake.js applyCustomCredits handlers), the seed length needs to grow correspondingly.",
+    "Headless chromium uses --mute-audio so the credits song doesn't blare during local runs; the autoplay-policy=no-user-gesture-required flag bypasses the autoplay gate that the splash exists to satisfy. Without these flags the scroll smoke would either fail (autoplay block) or be loud."
+  ],
+  "key_functions": [
+    {
+      "name": "assert",
+      "summary": "Increments pass/fail counters, prints status with optional detail, and pushes failures into a list reported at the end."
+    },
+    {
+      "name": "preflight",
+      "summary": "Fetches /launcher/index.html before launching the browser; bails out with exit 2 and a server-start hint if the static server isn't reachable."
+    },
+    {
+      "name": "launcherTests",
+      "summary": "Drives the launcher page through DOM render, autosave, mode toggle, threshold-based fieldset visibility, CLEAR, hydration-after-reload, ?random=1 redirect, and paste-truncation notice."
+    },
+    {
+      "name": "variantOverrideTests",
+      "summary": "For each of the three variants, runs 4 isolated scenarios (EMPTY, SHORT+LOOP, SHORT+STOP, LONG) seeding localStorage and asserting cake.useNaturalDelay / cake.customCreditsLoop / window.credits after DOMContentLoaded."
+    },
+    {
+      "name": "scrollSmokeTests",
+      "summary": "Real-time assertion: dismisses each variant's splash and waits per-variant for credit characters to actually appear in #creditstext, catching bugs where cake.init runs but typing fails to start."
+    }
+  ]
+}

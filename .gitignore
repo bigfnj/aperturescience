@@ -1,3 +1,5 @@
 CLAUDE.md
 AGENTS.md
 .github/copilot-instructions.md
+test/node_modules/
+test/package-lock.json

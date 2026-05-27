@@ -30,13 +30,15 @@
       "portal2/**/*.js",
       "launcher/**/*.html",
       "launcher/**/*.css",
-      "launcher/**/*.js"
+      "launcher/**/*.js",
+      "test/**/*.js"
     ],
     "exclude": [
       "AI_UNDERSTANDING/**",
       ".git/**",
       "**/*.ogg",
-      "**/*.mp3"
+      "**/*.mp3",
+      "test/node_modules/**"
     ]
   },
   "graph": "portal/index.html -> portal/style.css, portal/cakedata.js, portal/cake.js, portal/Still Alive.ogg\nportal/cake.js -> global asciiart, credits, lyrics from portal/cakedata.js\nportal/cake.js -> ../launcher/?random=1 (audio.ended under ?autoloop=1&random=1)\nportal2/index.html -> portal2/style.css, portal2/cakedata.js, portal2/cake.js, portal2/Want You Gone.mp3\nportal2/index.html -> cake.setVolume via inline #volume handlers\nportal2/cake.js -> global credits, lyrics from portal2/cakedata.js\nportal2/cake.js -> ../launcher/?random=1 (audio.ended under ?autoloop=1&random=1)\nportal2/portal1style/index.html -> portal2/portal1style/style.css, cakedata.js, cake.js, Want You Gone.mp3\nportal2/portal1style/cake.js -> global credits, lyrics from portal2/portal1style/cakedata.js\nportal2/portal1style/cake.js -> ../../launcher/?random=1 (audio.ended under ?autoloop=1&random=1)\nlauncher/index.html -> launcher/launcher.css, launcher/launcher.js\nlauncher/launcher.js -> ../portal/?autoloop=1, ../portal2/?autoloop=1, ../portal2/portal1style/?autoloop=1 (click/hotkey) or +&random=1 variants (random pick)"

@@ -1,0 +1,12 @@
+{
+  "name": "aperturescience-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Headless verification harness for the aperturescience credits app. Requires a localhost server on :8765 serving the repo root.",
+  "scripts": {
+    "verify": "node a3-verify.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}
