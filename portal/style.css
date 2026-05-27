@@ -17,7 +17,16 @@ body {
     100% { filter: hue-rotate(360deg); }
 }
 
-body.color-cycle {
+/*
+ * Target the variant content containers, NOT body — filter on body creates a
+ * new containing block for position:fixed descendants (the splash overlay),
+ * which collapses #splash's `inset: 0` to 0×0 since body has no explicit
+ * height. Containers below are absolute-positioned so their containing block
+ * is unaffected.
+ */
+body.color-cycle #lyrics,
+body.color-cycle #credits,
+body.color-cycle #picture {
     animation: color-cycle 60s linear infinite;
 }
 
@@ -35,7 +44,9 @@ body.color-rainbow #lyricstext > *:nth-child(6n+6),
 body.color-rainbow #creditstext > *:nth-child(6n+6) { color: #4f8; }
 
 @media (prefers-reduced-motion: reduce) {
-    body.color-cycle { animation: none; }
+    body.color-cycle #lyrics,
+    body.color-cycle #credits,
+    body.color-cycle #picture { animation: none; }
 }
 #lyrics {
     position: absolute;
@@ -84,6 +95,7 @@ body.color-rainbow #creditstext > *:nth-child(6n+6) { color: #4f8; }
     top: 2em;
     width: 30em;
     height: 28em;
+    overflow: hidden;
 }
 #creditstext {
     position: absolute;
@@ -93,6 +105,9 @@ body.color-rainbow #creditstext > *:nth-child(6n+6) { color: #4f8; }
     bottom: 1em;
     text-align: left;
     vertical-align: bottom;
+}
+#creditstext > * {
+    white-space: nowrap;
 }
 #creditsleft, #creditsright {
     position: absolute;

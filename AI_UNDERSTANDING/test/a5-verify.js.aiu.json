@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "test/a5-verify.js",
-  "sha1": "e13d73e41df5754883dd633838507ba1b827f80b",
+  "sha1": "b31a8027224f3434d2d389a0bc8512c0a205848b",
   "purpose": "Headless verification harness for the Phase 6 Bundle A5 (text color modes), A6 (last-used variant focus), and Decision 3 (WallpaperEngine runtime detection). Drives Playwright + Chromium against a localhost static server. Seven suites: (1) launcherDisplayModeUiTests — .display-mode section render + 4 radios + #customColor hidden by default; (2) modeHydrationTests — seeding localStorage.aperture.textColorMode and aperture.customColor and reloading hydrates the right radio + picker visibility/value; (3) modePersistenceTests — checking a non-default radio writes localStorage; checking DEFAULT removes the key; firing input event on the color picker persists the hex; (4) navigateUrlAppendTests — clicking a chamber under a non-default mode produces a destination URL with textcolor=cycle/rainbow or URL-encoded hex, but portal2/ never gets textcolor (gold theme untouched); (5) variantTextColorReadTests — loading each variant with ?textcolor=cycle/rainbow/hex/default produces the expected body class or :root --text-color, and portal2/ is a no-op for all values; (6) lastVariantFocusTests — seeding localStorage.aperture.lastVariant focuses the matching chamber on launcher load; clicking a chamber writes the data-target to lastVariant (verified post-navigation via same-origin localStorage); (7) wallpaperEngineRuntimeDetectionTests — injecting window.wallpaperPropertyListener via addInitScript triggers the same .disabled state on #overrideTrack as ?we=1.",
   "exports": [],
   "imports": [
@@ -68,6 +68,10 @@
     {
       "name": "lastVariantFocusTests",
       "summary": "Seeds aperture.lastVariant and asserts the matching chamber has focus after reload; clicks a chamber and asserts aperture.lastVariant is persisted (verified on the destination page via same-origin localStorage)."
+    },
+    {
+      "name": "cycleSplashRegressionTests",
+      "summary": "Regression check for the CYCLE-mode splash-collapse bug. Loads each textcolor-supporting variant with ?textcolor=cycle, asserts #splash bounding rect height > 600px (i.e. fills viewport, not collapsed to 0), and that h1/p inside splash render at sane positions (p.top > h1.bottom)."
     },
     {
       "name": "wallpaperEngineRuntimeDetectionTests",

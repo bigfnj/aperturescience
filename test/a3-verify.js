@@ -302,6 +302,30 @@ async function variantOverrideTests(browser) {
     }
 }
 
+async function creditsOverflowGuardTests(browser) {
+    section('Credits column overflow guard (regression: long custom credits bled into ASCII art)');
+
+    // Portal 1 terminal layout variants: long URL credits used to wrap to
+    // multiple visual lines, exceeding the 28em column height and bleeding
+    // into the #picture region below. Fix added overflow:hidden on #credits
+    // plus white-space:nowrap on credit/placeholder children.
+    const variants = [
+        { name: 'portal/',              path: '/portal/' },
+        { name: 'portal2/portal1style/', path: '/portal2/portal1style/' }
+    ];
+
+    for (const v of variants) {
+        const ctx = await browser.newContext();
+        const page = await ctx.newPage();
+        await page.goto(`${BASE}${v.path}`);
+        const overflow = await page.evaluate(
+            () => getComputedStyle(document.getElementById('credits')).overflow);
+        assert(`${v.name} #credits has overflow: hidden (stops bleed into picture region)`,
+            overflow === 'hidden', `got "${overflow}"`);
+        await ctx.close();
+    }
+}
+
 async function scrollSmokeTests(browser) {
     section('Real-time scroll smoke (watching credits actually type)');
 
@@ -356,6 +380,7 @@ async function scrollSmokeTests(browser) {
     try {
         await launcherTests(browser);
         await variantOverrideTests(browser);
+        await creditsOverflowGuardTests(browser);
         await scrollSmokeTests(browser);
     } finally {
         await browser.close();

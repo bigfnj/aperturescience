@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal/style.css",
-  "sha1": "1b2cccf5a0ed14ba194280bf20bc3436f3703da7",
+  "sha1": "5ac4873c69c7ceb8fbdf193a314f42668ccf7b4f",
   "purpose": "Fixed-position terminal-style layout for the original Portal credits page. It places the lyric box, credits box, and ASCII art picture area on a black monospace canvas. Surfaces a :root --text-color CSS custom property (default #ff0 yellow) so portal/cake.js applyTextColor can override the page color via a hex string. Also defines the .color-cycle keyframe animation (hue-rotate 60s loop, suppressed by prefers-reduced-motion) and the body.color-rainbow > #lyricstext/#creditstext > *:nth-child(6n+k) palette (yellow / amber / red / magenta / cyan / mint) that recolors lyric and credit spans cyclically.",
   "exports": [
     "body",
@@ -42,7 +42,8 @@
   ],
   "gotchas": [
     "The layout is not responsive; widening or shrinking content can easily misalign the text-drawn borders.",
-    "Hue-rotate animation on body.color-cycle affects EVERYTHING inside body — ASCII art, borders, lyric text, credit text. This is intentional; the whole page hue-cycles in lockstep. If a future element needs to escape the cycle, isolate it via `filter: none` reset or move it outside body.",
+    "color-cycle keyframe (hue-rotate filter) is applied to #lyrics, #credits, and #picture — NOT body. This is load-bearing: filter on body creates a new containing block for position:fixed descendants (the #splash overlay), collapsing its `inset: 0` to 0×0 because body has no explicit height. The three content containers are position:absolute so their filter doesn't affect anyone's containing block.",
+    "#credits has overflow: hidden to clip any vertical bleed past the 28em column boundary into the #picture region below. #creditstext > * has white-space: nowrap so long credit lines (URLs, etc.) stay on one visual line instead of wrapping and stacking up past the column height.",
     "@media (prefers-reduced-motion: reduce) disables the cycle animation; the body stays at hue-rotate(0deg) so colors are still yellow."
   ]
 }

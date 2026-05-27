@@ -332,6 +332,54 @@ async function lastVariantFocusTests(browser) {
     await ctx2.close();
 }
 
+async function cycleSplashRegressionTests(browser) {
+    section('CYCLE mode does not collapse #splash (regression: filter on body broke position:fixed inset:0)');
+
+    // With ?textcolor=cycle, the splash MUST still be full-viewport.
+    // Bug history: applying `filter: hue-rotate()` to body made body the
+    // containing block for #splash's position:fixed inset:0, collapsing
+    // it to 0×0 since body had no explicit height. Fix moved the filter
+    // to #lyrics/#credits/#picture only. This regression check pins it.
+    const variants = [
+        { name: 'portal/',              path: '/portal/' },
+        { name: 'portal2/portal1style/', path: '/portal2/portal1style/' }
+    ];
+
+    for (const v of variants) {
+        const ctx = await browser.newContext();
+        const page = await ctx.newPage();
+        await page.setViewportSize({ width: 1280, height: 720 });
+        await page.goto(`${BASE}${v.path}?textcolor=cycle`);
+        await page.waitForFunction(() => window.cake);
+
+        const splashRect = await page.evaluate(() => {
+            const el = document.getElementById('splash');
+            return el ? el.getBoundingClientRect() : null;
+        });
+        assert(`?textcolor=cycle on ${v.name} → #splash fills viewport (height > 600px)`,
+            splashRect && splashRect.height > 600,
+            `got ${splashRect ? splashRect.height : 'null'}`);
+
+        const h1Rect = await page.evaluate(() => {
+            const el = document.querySelector('#splash h1');
+            return el ? el.getBoundingClientRect() : null;
+        });
+        assert(`?textcolor=cycle on ${v.name} → #splash h1 (title) is visible`,
+            h1Rect && h1Rect.height > 0 && h1Rect.width > 0,
+            `got h=${h1Rect ? h1Rect.height : 'null'} w=${h1Rect ? h1Rect.width : 'null'}`);
+
+        const pRect = await page.evaluate(() => {
+            const el = document.querySelector('#splash p');
+            return el ? el.getBoundingClientRect() : null;
+        });
+        assert(`?textcolor=cycle on ${v.name} → #splash p (subtitle) is below h1`,
+            pRect && h1Rect && pRect.top > h1Rect.bottom,
+            `h1.bottom=${h1Rect ? h1Rect.bottom : '?'} p.top=${pRect ? pRect.top : '?'}`);
+
+        await ctx.close();
+    }
+}
+
 async function wallpaperEngineRuntimeDetectionTests(browser) {
     section('Decision 3 — WallpaperEngine runtime detection (window.wallpaperPropertyListener)');
 
@@ -375,6 +423,7 @@ async function wallpaperEngineRuntimeDetectionTests(browser) {
         await navigateUrlAppendTests(browser);
         await variantTextColorReadTests(browser);
         await lastVariantFocusTests(browser);
+        await cycleSplashRegressionTests(browser);
         await wallpaperEngineRuntimeDetectionTests(browser);
     } finally {
         await browser.close();

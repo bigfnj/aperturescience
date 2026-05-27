@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "path": "portal2/portal1style/style.css",
-  "sha1": "4f160ca82d50cfa959b14d2c0e9834c2c2cf20ba",
+  "sha1": "ca600de28ff2e98e9941ce77ae59ad6a62dfa902",
   "purpose": "Portal 1-style terminal layout reused for the Portal 2 \"Want You Gone\" alternate page. It positions lyric and credit boxes and includes leftover picture-region styling. Surfaces a :root --text-color CSS custom property (default #ff0 yellow) so portal2/portal1style/cake.js applyTextColor can override the page color via a hex string. Also defines the .color-cycle keyframe animation (hue-rotate 60s loop, suppressed by prefers-reduced-motion) and the body.color-rainbow > #lyricstext/#creditstext > *:nth-child(6n+k) palette (yellow / amber / red / magenta / cyan / mint) that recolors lyric and credit spans cyclically — identical to portal/style.css.",
   "exports": [
     "body",
@@ -42,7 +42,8 @@
   ],
   "gotchas": [
     "#picture styling is present even though portal2/portal1style/index.html does not declare a picture element.",
-    "Hue-rotate on body.color-cycle affects EVERYTHING inside body (borders included) — intentional whole-page hue cycling.",
+    "color-cycle keyframe (hue-rotate filter) is applied to #lyrics and #credits — NOT body. Load-bearing: filter on body creates a containing block for position:fixed descendants (#splash), collapsing its inset:0 to 0×0 (body has no explicit height). #picture isn't present in portal2/portal1style/ so it's omitted from the selector list (the portal/ variant has it).",
+    "#credits has overflow: hidden to clip vertical bleed past the column boundary; #creditstext > * has white-space: nowrap to keep long credit lines on one visual line instead of wrapping past the column height.",
     "Rules are duplicated between portal/style.css and this file; if the palette or animation duration is ever tuned, both files need to stay in lockstep."
   ]
 }
