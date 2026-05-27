@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "path": "portal2/portal1style/style.css",
-  "sha1": "2783d2f8e3a54fe835222869b7e43b0b66e08481",
-  "purpose": "Portal 1-style terminal layout reused for the Portal 2 \"Want You Gone\" alternate page. It positions lyric and credit boxes and includes leftover picture-region styling.",
+  "sha1": "4f160ca82d50cfa959b14d2c0e9834c2c2cf20ba",
+  "purpose": "Portal 1-style terminal layout reused for the Portal 2 \"Want You Gone\" alternate page. It positions lyric and credit boxes and includes leftover picture-region styling. Surfaces a :root --text-color CSS custom property (default #ff0 yellow) so portal2/portal1style/cake.js applyTextColor can override the page color via a hex string. Also defines the .color-cycle keyframe animation (hue-rotate 60s loop, suppressed by prefers-reduced-motion) and the body.color-rainbow > #lyricstext/#creditstext > *:nth-child(6n+k) palette (yellow / amber / red / magenta / cyan / mint) that recolors lyric and credit spans cyclically — identical to portal/style.css.",
   "exports": [
     "body",
     "#lyrics",
@@ -17,7 +17,11 @@
     "#creditsright",
     "#creditstop",
     "#creditsbottom",
-    "#picture"
+    "#picture",
+    ":root --text-color",
+    "@keyframes color-cycle",
+    "body.color-cycle",
+    "body.color-rainbow nth-child palette"
   ],
   "imports": [],
   "called_by": [
@@ -25,13 +29,20 @@
   ],
   "calls_out_to": [
     "CSS absolute positioning",
-    "monospace font rendering"
+    "monospace font rendering",
+    "@keyframes color-cycle hue-rotate animation",
+    "@media (prefers-reduced-motion: reduce) animation disable"
   ],
   "invariants": [
     "Dimensions align with the hard-coded text border counts in portal2/portal1style/cake.js.",
-    "The lyric and credit containers remain fixed-position boxes, matching the legacy Portal 1 look."
+    "The lyric and credit containers remain fixed-position boxes, matching the legacy Portal 1 look.",
+    ":root --text-color is the contract surface for A5 text-color modes; body color resolves through this var, so portal2/portal1style/cake.js applyTextColor() can swap the page color by setting it on document.documentElement.style. Default #ff0 = original 'yellow' keyword.",
+    ".color-cycle and .color-rainbow are mutually exclusive body classes — A5 launcher writes one or the other (never both).",
+    "Rainbow palette is 6 colors (yellow / amber / red / magenta / cyan / mint) repeated via :nth-child(6n+k); rules apply ONLY to direct children of #lyricstext and #creditstext."
   ],
   "gotchas": [
-    "#picture styling is present even though portal2/portal1style/index.html does not declare a picture element."
+    "#picture styling is present even though portal2/portal1style/index.html does not declare a picture element.",
+    "Hue-rotate on body.color-cycle affects EVERYTHING inside body (borders included) — intentional whole-page hue cycling.",
+    "Rules are duplicated between portal/style.css and this file; if the palette or animation duration is ever tuned, both files need to stay in lockstep."
   ]
 }

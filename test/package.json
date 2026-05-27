@@ -4,9 +4,10 @@
   "private": true,
   "description": "Headless verification harness for the aperturescience credits app. Requires a localhost server on :8765 serving the repo root.",
   "scripts": {
-    "verify": "node a3-verify.js && node a4-verify.js",
+    "verify": "node a3-verify.js && node a4-verify.js && node a5-verify.js",
     "verify-a3": "node a3-verify.js",
-    "verify-a4": "node a4-verify.js"
+    "verify-a4": "node a4-verify.js",
+    "verify-a5": "node a5-verify.js"
   },
   "devDependencies": {
     "playwright": "^1.49.0"

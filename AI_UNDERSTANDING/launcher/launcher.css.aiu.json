@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "path": "launcher/launcher.css",
-  "sha1": "f585d96622a520d3649757d09e05b01d9999c48f",
-  "purpose": "Stylesheet for the Phase 6 launcher page. Establishes the yellow-on-black Aperture aesthetic, centers the picker in the viewport, lays out the 4 chamber buttons in a 2x2 grid (collapses to a single column under 40em), applies hover/focus inversion, and animates the blinking footer cursor. Styles two stacked feature panels: (1) ENRICHMENT CENTER CREDITS — bordered section header + help text, monospace textarea with focus border, char-counter and #f80 truncation notice meta row, MODE fieldset with custom-accent radios; (2) OVERRIDE TRACK — same bordered header treatment, button row, status meta row with audio-status / audio-error / WE-disabled pill spans, and a .disabled state that dims the entire section under ?we=1. The .hidden utility class is the launcher.js toggle contract for the MODE fieldset, truncation notice, audio status, audio error, and WE pill. Respects prefers-reduced-motion.",
+  "sha1": "d96f600e329f3eb9913b19d8d10ef5215bda4e31",
+  "purpose": "Stylesheet for the Phase 6 launcher page. Establishes the yellow-on-black Aperture aesthetic, centers the picker in the viewport, lays out the 4 chamber buttons in a 2x2 grid (collapses to a single column under 40em), applies hover/focus inversion, and animates the blinking footer cursor. Styles three stacked feature panels: (1) DISPLAY MODE — bordered section with 4 inline radios (DEFAULT / CYCLE / RAINBOW / CUSTOM) and a small `<input type=color>` swatch styled as a 1.6em x 2.4em yellow-bordered square, hidden via .hidden when CUSTOM not selected; (2) ENRICHMENT CENTER CREDITS — textarea + char-counter + LOOP/STOP MODE radios; (3) OVERRIDE TRACK — buttons + status meta row, .disabled state dims under ?we=1. The .hidden utility class is the launcher.js toggle contract for the customColor picker, MODE fieldset, truncation notice, audio status, audio error, and WE pill. Respects prefers-reduced-motion.",
   "exports": [],
   "imports": [],
   "called_by": [

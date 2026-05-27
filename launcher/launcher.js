@@ -11,22 +11,53 @@ function pickRandom() {
     return VARIANTS[Math.floor(Math.random() * VARIANTS.length)];
 }
 
+// True for portal/ and portal2/portal1style/, false for portal2/ (gold theme intentionally untouched).
+function supportsTextColor(url) {
+    if (!url) return false;
+    if (url.indexOf('portal2/portal1style/') !== -1) return true;
+    if (url.indexOf('portal2/') !== -1) return false;
+    if (url.indexOf('portal/') !== -1) return true;
+    return false;
+}
+
+function applyTextColorParam(url) {
+    if (!url || !supportsTextColor(url)) return url;
+    var mode = safeGet(TEXTCOLOR_KEY) || 'default';
+    if (mode === 'default') return url;
+    var value;
+    if (mode === 'cycle' || mode === 'rainbow') {
+        value = mode;
+    } else if (mode === 'custom') {
+        var hex = safeGet(CUSTOM_COLOR_KEY);
+        if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return url;
+        value = hex;
+    } else {
+        return url;
+    }
+    var sep = url.indexOf('?') === -1 ? '?' : '&';
+    return url + sep + 'textcolor=' + encodeURIComponent(value);
+}
+
 function navigate(target) {
     if (target === 'RANDOM') {
-        location.assign(pickRandom());
+        location.assign(applyTextColorParam(pickRandom()));
     } else {
-        location.assign(target);
+        if (target) safeSet(LAST_VARIANT_KEY, target);
+        location.assign(applyTextColorParam(target));
     }
 }
 
 var CREDITS_KEY = 'aperture.customCredits';
 var MODE_KEY = 'aperture.creditsMode';
+var TEXTCOLOR_KEY = 'aperture.textColorMode';
+var CUSTOM_COLOR_KEY = 'aperture.customColor';
+var LAST_VARIANT_KEY = 'aperture.lastVariant';
 var MAX_CHARS = 20000;
 var LOOP_THRESHOLD = 2500;
 
 var params = new URLSearchParams(window.location.search);
 if (params.get('random') === '1') {
-    location.replace(pickRandom());
+    location.replace(applyTextColorParam(pickRandom()));
 } else {
     document.querySelectorAll('.chamber').forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -42,8 +73,10 @@ if (params.get('random') === '1') {
             navigate(btn.getAttribute('data-target'));
         }
     });
+    initDisplayMode();
     initEnrichmentCredits();
     initOverrideTrack();
+    focusLastVariant();
 }
 
 function safeGet(key) {
@@ -54,6 +87,66 @@ function safeSet(key, value) {
 }
 function safeRemove(key) {
     try { localStorage.removeItem(key); } catch (e) {}
+}
+
+function focusLastVariant() {
+    var last = safeGet(LAST_VARIANT_KEY);
+    if (!last) return;
+    var buttons = document.querySelectorAll('.chamber');
+    for (var i = 0; i < buttons.length; i++) {
+        if (buttons[i].getAttribute('data-target') === last) {
+            buttons[i].focus();
+            return;
+        }
+    }
+}
+
+function initDisplayMode() {
+    var radios = document.querySelectorAll('input[name="textColorMode"]');
+    var picker = document.getElementById('customColor');
+    if (!radios.length || !picker) return;
+
+    var savedMode = safeGet(TEXTCOLOR_KEY) || 'default';
+    var savedColor = safeGet(CUSTOM_COLOR_KEY);
+    if (savedColor && /^#[0-9a-fA-F]{6}$/.test(savedColor)) {
+        picker.value = savedColor;
+    }
+    var matched = false;
+    radios.forEach(function(r) {
+        if (r.value === savedMode) {
+            r.checked = true;
+            matched = true;
+        }
+    });
+    if (!matched) {
+        radios[0].checked = true;
+        safeRemove(TEXTCOLOR_KEY);
+    }
+    refreshPicker();
+
+    function refreshPicker() {
+        var customSelected = document.querySelector('input[name="textColorMode"][value="custom"]').checked;
+        if (customSelected) picker.classList.remove('hidden');
+        else picker.classList.add('hidden');
+    }
+
+    radios.forEach(function(r) {
+        r.addEventListener('change', function() {
+            if (!r.checked) return;
+            if (r.value === 'default') {
+                safeRemove(TEXTCOLOR_KEY);
+            } else {
+                safeSet(TEXTCOLOR_KEY, r.value);
+            }
+            refreshPicker();
+        });
+    });
+
+    picker.addEventListener('input', function() {
+        if (/^#[0-9a-fA-F]{6}$/.test(picker.value)) {
+            safeSet(CUSTOM_COLOR_KEY, picker.value);
+        }
+    });
 }
 
 function initEnrichmentCredits() {
@@ -213,7 +306,8 @@ function initOverrideTrack() {
     var wePill = document.getElementById('weDisabled');
     if (!section) return;
 
-    var weMode = params.get('we') === '1';
+    var weMode = params.get('we') === '1' ||
+                 typeof window.wallpaperPropertyListener !== 'undefined';
     if (weMode) {
         section.classList.add('disabled');
         loadBtn.disabled = true;

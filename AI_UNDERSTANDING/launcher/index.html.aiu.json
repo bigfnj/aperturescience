@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "path": "launcher/index.html",
-  "sha1": "24e5d3ffb977378f10d901b2e1e740f6aec54422",
-  "purpose": "HTML5 shell for the Phase 6 launcher page. Renders a yellow-on-black Aperture-themed 4-button picker (TEST CHAMBER 01 / 02 / 02 LEGACY / RANDOMIZE PROTOCOL) with subtitles and hotkey hints, the ENRICHMENT CENTER CREDITS panel (LOAD .TXT/CLEAR buttons, autosaving textarea with maxlength=20000, character counter, truncation notice, LOOP/STOP MODE radios), and the OVERRIDE TRACK panel (LOAD AUDIO FILE/RESET TO DEFAULT buttons, status line showing filename + duration, error pill, and WallpaperEngine-disabled pill). Each chamber button carries a data-target attribute consumed by launcher.js for navigation; the enrichment and override-track elements have stable ids consumed by launcher.js for localStorage and IndexedDB round-tripping. Loads launcher.css and launcher.js (script at end of body).",
+  "sha1": "9a21049a13faaf84f23fb4edabfd40cbc078cec6",
+  "purpose": "HTML5 shell for the Phase 6 launcher page. Renders a yellow-on-black Aperture-themed 4-button picker (TEST CHAMBER 01 / 02 / 02 LEGACY / RANDOMIZE PROTOCOL) with subtitles and hotkey hints, then three feature panels stacked vertically: (1) DISPLAY MODE — 4 radios (DEFAULT / CYCLE / RAINBOW / CUSTOM) + hidden-by-default `<input type=\"color\" id=\"customColor\">` for the CUSTOM hex picker; (2) ENRICHMENT CENTER CREDITS — LOAD .TXT/CLEAR buttons, autosaving textarea with maxlength=20000, character counter, truncation notice, LOOP/STOP MODE radios; (3) OVERRIDE TRACK — LOAD AUDIO FILE/RESET TO DEFAULT buttons, status line showing filename + duration, error pill, and WallpaperEngine-disabled pill. Each chamber button carries a data-target attribute consumed by launcher.js for navigation; the enrichment and override-track elements have stable ids consumed by launcher.js for localStorage and IndexedDB round-tripping. Loads launcher.css and launcher.js (script at end of body).",
   "exports": [],
   "imports": [
     "launcher/launcher.css",
@@ -24,6 +24,7 @@
     "Page is reachable as a sibling of portal/, portal2/, portal2/portal1style/; data-target relative URLs assume this layout.",
     "The four hotkeys are 1, 2, 3, r — kept in sync with the [N] hint spans inside each button label.",
     "Enrichment Center Credits element ids (#customCredits, #charCount, #truncNotice, #modeFieldset, #loadTxt, #txtPicker, #clearCredits, input[name='creditsMode']) are the contract surface with launcher.js — renames require launcher.js update.",
+    "DISPLAY MODE element contract: input[name='textColorMode'] radios with value in {default, cycle, rainbow, custom}; #customColor `<input type=color>` is hidden via .hidden class when CUSTOM is not selected. Launcher.js initDisplayMode reads/writes localStorage.aperture.textColorMode + localStorage.aperture.customColor.",
     "Override Track element ids (#overrideTrack, #loadAudio, #audioPicker, #resetAudio, #audioStatus, #audioError, #weDisabled) are the contract surface with launcher.js — renames require launcher.js update.",
     "The textarea has maxlength=20000 so the browser silently caps input; launcher.js detects the cap on paste via inputType+length and FileReader trims explicitly.",
     "Audio picker accepts 'audio/*,.wav,.mp3,.ogg' — broad enough to cover the common formats users will try but constrained so non-audio files don't even appear in the native picker."

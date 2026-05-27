@@ -32,6 +32,17 @@
             <span class="hotkey">[R]</span>
         </button>
     </div>
+    <section class="display-mode" aria-labelledby="displayModeHeader">
+        <h2 id="displayModeHeader" class="section-header">DISPLAY MODE</h2>
+        <p class="section-help">CHANGES TEXT COLOR ON TEST CHAMBER 01 AND TEST CHAMBER 02 LEGACY. TEST CHAMBER 02 STAYS GOLD.</p>
+        <fieldset class="display-mode-radios">
+            <label><input type="radio" name="textColorMode" value="default" checked> DEFAULT</label>
+            <label><input type="radio" name="textColorMode" value="cycle"> CYCLE</label>
+            <label><input type="radio" name="textColorMode" value="rainbow"> RAINBOW</label>
+            <label><input type="radio" name="textColorMode" value="custom"> CUSTOM</label>
+            <input type="color" id="customColor" value="#ff0000" class="hidden" aria-label="Custom text color">
+        </fieldset>
+    </section>
     <section class="enrichment" aria-labelledby="enrichmentHeader">
         <h2 id="enrichmentHeader" class="section-header">ENRICHMENT CENTER CREDITS</h2>
         <p class="section-help">USER-SUPPLIED TEXT REPLACES THE NAMES SCROLL DURING THE SONG. LEAVE BLANK FOR DEFAULT.</p>

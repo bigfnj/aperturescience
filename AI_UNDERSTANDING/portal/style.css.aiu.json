@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "path": "portal/style.css",
-  "sha1": "c692dd31ef360ce921cf6480ec2a372ff8bb0618",
-  "purpose": "Fixed-position terminal-style layout for the original Portal credits page. It places the lyric box, credits box, and ASCII art picture area on a black monospace canvas.",
+  "sha1": "1b2cccf5a0ed14ba194280bf20bc3436f3703da7",
+  "purpose": "Fixed-position terminal-style layout for the original Portal credits page. It places the lyric box, credits box, and ASCII art picture area on a black monospace canvas. Surfaces a :root --text-color CSS custom property (default #ff0 yellow) so portal/cake.js applyTextColor can override the page color via a hex string. Also defines the .color-cycle keyframe animation (hue-rotate 60s loop, suppressed by prefers-reduced-motion) and the body.color-rainbow > #lyricstext/#creditstext > *:nth-child(6n+k) palette (yellow / amber / red / magenta / cyan / mint) that recolors lyric and credit spans cyclically.",
   "exports": [
     "body",
     "#lyrics",
@@ -18,7 +18,11 @@
     "#creditstop",
     "#creditsbottom",
     "#picture",
-    "#picturetext"
+    "#picturetext",
+    ":root --text-color",
+    "@keyframes color-cycle",
+    "body.color-cycle",
+    "body.color-rainbow nth-child palette"
   ],
   "imports": [],
   "called_by": [
@@ -31,9 +35,14 @@
   "invariants": [
     "Dimensions are expressed in em units that match the hard-coded border character counts in portal/cake.js.",
     "The #picture region must stay present for cake.setPicture output.",
-    "#picture left-aligns with #credits at 33em and spans 24em vertically so its bottom matches #lyrics bottom (54em). #picturetext uses flexbox to center ASCII art frames on both axes; line-height 1.2em makes 20-line frames exactly fill the 24em box."
+    "#picture left-aligns with #credits at 33em and spans 24em vertically so its bottom matches #lyrics bottom (54em). #picturetext uses flexbox to center ASCII art frames on both axes; line-height 1.2em makes 20-line frames exactly fill the 24em box.",
+    ":root --text-color is the contract surface for A5 text-color modes; body color resolves through this var, so portal/cake.js applyTextColor() can swap the page color by setting it on document.documentElement.style. The default #ff0 is identical to the original 'yellow' keyword.",
+    ".color-cycle and .color-rainbow are mutually exclusive body classes — A5 launcher writes one or the other (never both) based on the user's selected mode.",
+    "Rainbow palette is 6 colors (yellow / amber / red / magenta / cyan / mint) repeated via :nth-child(6n+k); rules apply ONLY to direct children of #lyricstext and #creditstext, so the borders (#lyricsleft etc.) stay yellow even in rainbow mode."
   ],
   "gotchas": [
-    "The layout is not responsive; widening or shrinking content can easily misalign the text-drawn borders."
+    "The layout is not responsive; widening or shrinking content can easily misalign the text-drawn borders.",
+    "Hue-rotate animation on body.color-cycle affects EVERYTHING inside body — ASCII art, borders, lyric text, credit text. This is intentional; the whole page hue-cycles in lockstep. If a future element needs to escape the cycle, isolate it via `filter: none` reset or move it outside body.",
+    "@media (prefers-reduced-motion: reduce) disables the cycle animation; the body stays at hue-rotate(0deg) so colors are still yellow."
   ]
 }

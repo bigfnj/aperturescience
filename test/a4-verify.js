@@ -210,13 +210,19 @@ async function idbRoundTripTests(browser) {
 async function variantBlobOverrideTests(browser) {
     // Per-variant: load a DIFFERENT audio file via IDB than the bundled one.
     // This way creditsMaxTime overrides are clearly distinguishable from the default.
+    //
+    // swapActualDuration is the ACTUAL decoded duration (not the nominal/labeled length).
+    // VBR MP3 and Vorbis OGG drift several seconds from the labeled length, so the test
+    // pins to what the decoder actually reports. Re-encoded source → update these values.
+    //   Want You Gone.mp3: nominal 144s, decoded 139.73s
+    //   Still Alive.ogg:   nominal 173s, decoded 176.47s
     const variants = [
         {
             name: 'portal/',
             path: '/portal/',
             bundleMaxTime: 173,
             swapFetch: '/portal2/Want You Gone.mp3',
-            swapDurationSec: 144,
+            swapActualDuration: 139.73,
             audioStartDelayDefault: 6870
         },
         {
@@ -224,7 +230,7 @@ async function variantBlobOverrideTests(browser) {
             path: '/portal2/',
             bundleMaxTime: 144,
             swapFetch: '/portal/Still Alive.ogg',
-            swapDurationSec: 173,
+            swapActualDuration: 176.47,
             audioStartDelayDefault: null  // portal2/cake.js plays immediately, no field
         },
         {
@@ -232,7 +238,7 @@ async function variantBlobOverrideTests(browser) {
             path: '/portal2/portal1style/',
             bundleMaxTime: 144,
             swapFetch: '/portal/Still Alive.ogg',
-            swapDurationSec: 173,
+            swapActualDuration: 176.47,
             audioStartDelayDefault: 0
         }
     ];
@@ -258,12 +264,12 @@ async function variantBlobOverrideTests(browser) {
         await page.waitForFunction(() => window.cake && window.cake.audioReady === true,
             { timeout: 20000 });
         const maxTime = await page.evaluate(() => window.cake.creditsMaxTime);
-        // Override must (a) differ from the bundle default (proves loadedmetadata fired and updated the field)
-        // and (b) land within ~10s of the source file's nominal length. Encoded vs decoded audio duration
-        // can drift several seconds for VBR MP3 / Vorbis OGG — exact match is brittle.
-        assert(`[BLOB] ${v.name} cake.creditsMaxTime overridden via loadedmetadata (got ${maxTime.toFixed(2)}, was ${v.bundleMaxTime}, expected ~${v.swapDurationSec})`,
-            maxTime !== v.bundleMaxTime && Math.abs(maxTime - v.swapDurationSec) < 10,
-            `got ${maxTime}, must be !== ${v.bundleMaxTime} AND within 10s of ${v.swapDurationSec}`);
+        // Override must match the audio's *actual decoded* duration within ±1.5s.
+        // Tight tolerance pinned to swapActualDuration catches real regressions
+        // (e.g. listener bound when srcOverride is falsy, or never bound at all).
+        assert(`[BLOB] ${v.name} cake.creditsMaxTime overridden via loadedmetadata (got ${maxTime.toFixed(2)}, expected ~${v.swapActualDuration} ±1.5s, was ${v.bundleMaxTime})`,
+            Math.abs(maxTime - v.swapActualDuration) < 1.5 && maxTime !== v.bundleMaxTime,
+            `got ${maxTime}, must be within 1.5s of ${v.swapActualDuration} AND !== ${v.bundleMaxTime}`);
 
         if (v.audioStartDelayDefault !== null) {
             const delay = await page.evaluate(() => window.cake.audioStartDelay);

@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "path": "test/a5-verify.js",
+  "sha1": "e13d73e41df5754883dd633838507ba1b827f80b",
+  "purpose": "Headless verification harness for the Phase 6 Bundle A5 (text color modes), A6 (last-used variant focus), and Decision 3 (WallpaperEngine runtime detection). Drives Playwright + Chromium against a localhost static server. Seven suites: (1) launcherDisplayModeUiTests — .display-mode section render + 4 radios + #customColor hidden by default; (2) modeHydrationTests — seeding localStorage.aperture.textColorMode and aperture.customColor and reloading hydrates the right radio + picker visibility/value; (3) modePersistenceTests — checking a non-default radio writes localStorage; checking DEFAULT removes the key; firing input event on the color picker persists the hex; (4) navigateUrlAppendTests — clicking a chamber under a non-default mode produces a destination URL with textcolor=cycle/rainbow or URL-encoded hex, but portal2/ never gets textcolor (gold theme untouched); (5) variantTextColorReadTests — loading each variant with ?textcolor=cycle/rainbow/hex/default produces the expected body class or :root --text-color, and portal2/ is a no-op for all values; (6) lastVariantFocusTests — seeding localStorage.aperture.lastVariant focuses the matching chamber on launcher load; clicking a chamber writes the data-target to lastVariant (verified post-navigation via same-origin localStorage); (7) wallpaperEngineRuntimeDetectionTests — injecting window.wallpaperPropertyListener via addInitScript triggers the same .disabled state on #overrideTrack as ?we=1.",
+  "exports": [],
+  "imports": [
+    "playwright (chromium)"
+  ],
+  "called_by": [
+    "test/package.json npm scripts.verify-a5",
+    "manual `node test/a5-verify.js` invocation"
+  ],
+  "calls_out_to": [
+    "chromium.launch",
+    "browser.newContext",
+    "context.addInitScript",
+    "page.goto / reload / evaluate / click / locator / waitForFunction",
+    "fetch (preflight)",
+    "process.exit"
+  ],
+  "invariants": [
+    "BASE env var overrides the default http://localhost:8765; preflight() fails loud with exit 2 if the static server is not reachable.",
+    "Every scenario uses a fresh browser context so localStorage and the wallpaperPropertyListener init script are isolated across tests.",
+    "navigateUrlAppendTests uses Promise.all([waitForLoadState('load'), page.click(...)]) to capture the post-navigation URL — without the load wait, page.url() can return the launcher URL if the navigation is still in flight.",
+    "lastVariantFocusTests reads document.activeElement.getAttribute('data-target') after a 100 ms tick — focusLastVariant runs synchronously at script-eval time but Playwright sometimes hasn't yet observed the DOM focus change without the small wait.",
+    "Chamber-click → lastVariant write is verified ON THE DESTINATION variant page (not the launcher) because the click immediately navigates away. Since both pages are same-origin (localhost:8765), localStorage is shared.",
+    "wallpaperEngineRuntimeDetectionTests uses context.addInitScript so window.wallpaperPropertyListener is defined BEFORE the launcher script runs — simulating the WE-injected global. The launcher's `typeof !== 'undefined'` check then routes into the WE-mode branch even without ?we=1.",
+    "variantTextColorReadTests treats portal2/ as a 'supports: false' variant — body class and :root style assertions all flip to expecting the negative case (no class, no inline var). This is the load-bearing test that portal2/ stays gold-themed even when ?textcolor= is in the URL."
+  ],
+  "gotchas": [
+    "Requires the same playwright + chromium install as a3-verify.js and a4-verify.js (npm install + npx playwright install chromium inside test/). One-time per machine.",
+    "The color picker assertion uses an `input` event dispatched programmatically — real Chromium fires `input` events as the user drags the swatch, so this is a faithful simulation. If Chromium ever changes color-picker event semantics, this test may need to dispatch `change` instead.",
+    "The hex picker test uses lowercase '#abcdef' and '#123abc' since `<input type=color>` always emits lowercase hex regardless of what was set. If launcher.js's regex ever becomes case-sensitive, the test would still pass but real-world all-caps hex would fail.",
+    "encodeURIComponent('#ff00ff') = '%23ff00ff'. Test uses a case-insensitive regex /%23ff00ff/i to match the URL because some User-Agent path implementations lower-case the percent-encoding.",
+    "Hex regex /^#[0-9a-fA-F]{6}$/ in launcher.js requires the leading #; the color picker value is always '#rrggbb' so this is fine, but a future code path that strips the # would silently fail to persist.",
+    "lastVariantFocusTests assumes Playwright doesn't move focus elsewhere during reload. If a future change focuses an input on launcher load (e.g. an autofocus attr), the assertion would fail — fix by reordering the assertion to run BEFORE any other focusable input renders, or remove competing autofocus attributes."
+  ],
+  "key_functions": [
+    {
+      "name": "assert",
+      "summary": "Increments pass/fail counters and prints status; pushes failures into a list reported at the end."
+    },
+    {
+      "name": "preflight",
+      "summary": "Fetches /launcher/index.html before launching the browser; bails out with exit 2 if the static server isn't reachable."
+    },
+    {
+      "name": "launcherDisplayModeUiTests",
+      "summary": "Asserts the .display-mode section + 4 radios with the correct values + #customColor hidden by default on a fresh load."
+    },
+    {
+      "name": "modeHydrationTests",
+      "summary": "Seeds aperture.textColorMode (cycle / custom + customColor hex) and reloads; asserts the matching radio is checked and the picker visibility/value match."
+    },
+    {
+      "name": "modePersistenceTests",
+      "summary": "Checks RAINBOW radio → asserts localStorage write; checks DEFAULT → asserts removal; dispatches input event on #customColor → asserts aperture.customColor persisted."
+    },
+    {
+      "name": "navigateUrlAppendTests",
+      "summary": "Sets each mode + clicks each chamber; asserts the destination URL contains textcolor=value (or URL-encoded hex) for portal/ and portal2/portal1style/, and has NO textcolor for portal2/."
+    },
+    {
+      "name": "variantTextColorReadTests",
+      "summary": "Loads each variant under ?textcolor=cycle/rainbow/hex/default and asserts body class or :root --text-color match. portal2/ should ignore the param entirely."
+    },
+    {
+      "name": "lastVariantFocusTests",
+      "summary": "Seeds aperture.lastVariant and asserts the matching chamber has focus after reload; clicks a chamber and asserts aperture.lastVariant is persisted (verified on the destination page via same-origin localStorage)."
+    },
+    {
+      "name": "wallpaperEngineRuntimeDetectionTests",
+      "summary": "Injects window.wallpaperPropertyListener via addInitScript and asserts #overrideTrack is in the .disabled state without ?we=1 in the URL."
+    }
+  ]
+}

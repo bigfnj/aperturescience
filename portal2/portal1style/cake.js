@@ -348,6 +348,19 @@ var cake = {
 
 window.cake = cake;
 
+function applyTextColor() {
+    var params = new URLSearchParams(window.location.search);
+    var mode = params.get('textcolor');
+    if (!mode || mode === 'default') return;
+    if (mode === 'cycle') {
+        document.body.classList.add('color-cycle');
+    } else if (mode === 'rainbow') {
+        document.body.classList.add('color-rainbow');
+    } else if (/^#[0-9a-fA-F]{6}$/.test(mode)) {
+        document.documentElement.style.setProperty('--text-color', mode);
+    }
+}
+
 function applyCustomCredits() {
     var customCredits = '';
     var creditsMode = 'loop';
@@ -407,6 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var params = new URLSearchParams(window.location.search);
     cake.autoloop = params.get('autoloop') === '1';
     cake.random = params.get('random') === '1';
+    applyTextColor();
     applyCustomCredits();
     applyCustomAudio();
     var splash = document.getElementById('splash');
